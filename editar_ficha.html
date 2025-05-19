@@ -36,20 +36,14 @@
       border-radius: 6px;
       cursor: pointer;
     }
+    label {
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <h2>Editar ficha</h2>
-  <form id="formEditar">
-    <input type="text" name="Nombre" placeholder="Nombre" />
-    <input type="text" name="Apellido" placeholder="Apellido" />
-    <input type="text" name="Teléfono de contacto" placeholder="Teléfono" />
-    <input type="email" name="Email" placeholder="Email" />
-    <input type="text" name="Tipo de mascota" placeholder="Tipo de mascota" />
-    <input type="text" name="Raza" placeholder="Raza" />
-    <textarea name="Características" placeholder="Características"></textarea>
-    <button type="submit">Guardar cambios</button>
-  </form>
+  <form id="formEditar"></form>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -57,29 +51,45 @@
 
     const API_URL = `https://idgonow.up.railway.app/api/v2/tables/m1ebsgkhbspdiqq/records/${recordId}`;
     const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
-
     const form = document.getElementById("formEditar");
 
-    // Cargar datos actuales
+    const omit = [
+      "id", "createdat", "updatedat", "estado",
+      "foto", "url de la ficha", "url de ficha"
+    ].map(c => c.toLowerCase());
+
     fetch(API_URL, {
       headers: { "xc-token": API_TOKEN }
     })
     .then(res => res.json())
     .then(data => {
       const row = data.fields || data;
-      for (const field of form.elements) {
-        if (field.name && row[field.name]) {
-          field.value = row[field.name];
-        }
+
+      for (const [campo, valor] of Object.entries(row)) {
+        const k = campo.trim().toLowerCase();
+        if (!valor || omit.includes(k) || k.includes("foto")) continue;
+
+        const label = document.createElement("label");
+        label.textContent = campo;
+
+        const input = document.createElement("textarea");
+        input.name = campo;
+        input.value = valor;
+        input.rows = 2;
+
+        form.appendChild(label);
+        form.appendChild(input);
       }
+
+      const btn = document.createElement("button");
+      btn.type = "submit";
+      btn.textContent = "Guardar cambios";
+      form.appendChild(btn);
     });
 
-    // Enviar cambios
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       const datos = Object.fromEntries(new FormData(form).entries());
-
-      // Añadir estado = "modificado"
       datos.estado = "modificado";
 
       fetch(API_URL, {
@@ -103,3 +113,4 @@
   </script>
 </body>
 </html>
+
