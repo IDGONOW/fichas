@@ -54,7 +54,7 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const recordId = params.get("id");
-    const apiUrl = `https://idgonow.up.railway.app/api/v1/db/data/v1/fichas/${recordId}`;
+    const apiUrl = `https://nocodb-production-dadf.up.railway.app/api/v2/tables/m1ebsgkhbspdiqq/records/${recordId}`;
 
     fetch(apiUrl)
       .then(res => res.json())
