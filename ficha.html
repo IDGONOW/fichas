@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ficha | IDGoNow</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      padding: 1rem;
+      max-width: 480px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    .info p {
+      margin: 0.5rem 0;
+      font-size: 16px;
+    }
+    .btns {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .btns a {
+      text-decoration: none;
+      color: white;
+      padding: 0.75rem 1.2rem;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    .call {
+      background: #28a745;
+    }
+    .whatsapp {
+      background: #25d366;
+    }
+  </style>
+</head>
+<body>
+  <h2>Ficha de identificación</h2>
+  <div id="contenido">Cargando ficha...</div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const recordId = params.get("id");
+    const apiUrl = `https://idgonow.up.railway.app/api/v1/db/data/v1/fichas/${recordId}`;
+
+    fetch(apiUrl)
+      .then(res => res.json())
+      .then(data => {
+        if (!data) throw new Error("No se encontró la ficha");
+
+        const nombre = data["Nombre de la persona"] || data["Nombre de la mascota"] || "su familiar o mascota";
+        const tel = data["Teléfono de contacto"]?.replace(/\D/g, "");
+        const mensaje = encodeURIComponent(`Hola, he encontrado a ${nombre}, por favor comuníquese conmigo.`);
+        const foto = data["foto"];
+
+        let html = "";
+
+        if (foto && foto.startsWith("http")) {
+          html += `<img src="${foto}" alt="Foto">`;
+        }
+
+        html += `<div class="info">`;
+
+        for (const [key, val] of Object.entries(data)) {
+          if (!val || key === "id" || key.toLowerCase().includes("url")) continue;
+          if (key === "foto") continue;
+          html += `<p><strong>${key}:</strong> ${val}</p>`;
+        }
+
+        html += `</div>`;
+
+        if (tel) {
+          html += `
+            <div class="btns">
+              <a href="tel:+51${tel}" class="call">Llamar</a>
+              <a href="https://wa.me/51${tel}?text=${mensaje}" target="_blank" class="whatsapp">WhatsApp</a>
+            </div>
+          `;
+        }
+
+        document.getElementById("contenido").innerHTML = html;
+      })
+      .catch(err => {
+        document.getElementById("contenido").innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
+      });
+  </script>
+</body>
+</html>
