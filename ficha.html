@@ -116,6 +116,7 @@
         `;
       }
 
+      // INFO
       html += `<div class="info">`;
       for (const [key, val] of Object.entries(row)) {
         const k = key.trim().toLowerCase();
@@ -124,6 +125,7 @@
       }
       html += `</div>`;
 
+      // BOTONES DE ACCIÓN
       const nombre = row["Nombre"] || "su familiar o mascota";
       const tel = row["Teléfono de contacto"]?.replace(/\D/g, "");
       const mensaje = encodeURIComponent(`Hola, he encontrado a ${nombre}, por favor comuníquese conmigo.`);
@@ -143,11 +145,40 @@
         </div>`;
       }
 
+      // BOTONES DE CONFIRMACIÓN Y EDICIÓN
+      html += `
+      <div style="text-align: center; margin-top: 2rem;">
+        <button onclick="confirmarFicha()" style="padding: 10px 20px; margin: 0 10px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">
+          ✅ Confirmar ficha
+        </button>
+        <a href="https://idgonow.github.io/fichas/editar_ficha.html?id=${recordId}">
+          <button style="padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            ✏️ Editar ficha
+          </button>
+        </a>
+      </div>`;
+
       document.getElementById("contenido").innerHTML = html;
     })
     .catch(err => {
       document.getElementById("contenido").innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
     });
+
+    function confirmarFicha() {
+      fetch(`https://idgonow.up.railway.app/api/v2/tables/m1ebsgkhbspdiqq/records/${recordId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "xc-token": API_TOKEN
+        },
+        body: JSON.stringify({ estado: "confirmado" })
+      })
+      .then(res => {
+        if (res.ok) alert("✅ Ficha confirmada con éxito.");
+        else throw new Error("No se pudo confirmar.");
+      })
+      .catch(err => alert("❌ Error: " + err.message));
+    }
 
     function enviarUbicacion(tel, nombre) {
       if (!navigator.geolocation) {
@@ -167,6 +198,3 @@
   </script>
 </body>
 </html>
-
-
-
