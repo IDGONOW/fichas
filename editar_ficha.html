@@ -54,7 +54,7 @@
     const form = document.getElementById("formEditar");
 
     const omit = [
-      "id", "createdat", "updatedat", "estado",
+      "id", "createdat", "updatedat", "Estado",
       "foto", "url de la ficha", "url de ficha"
     ].map(c => c.toLowerCase());
 
@@ -90,7 +90,7 @@
   form.addEventListener("submit", function (e) {
   e.preventDefault();
   const datos = Object.fromEntries(new FormData(form).entries());
-  datos.estado = "modificado";
+  datos["Estado"] = "modificado";
 
   console.log("Datos a enviar:", datos); // 👈 agrega esta línea
 
