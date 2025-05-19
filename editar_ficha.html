@@ -91,7 +91,7 @@
       e.preventDefault();
       const datos = Object.fromEntries(new FormData(form).entries());
       datos.estado = "modificado";
-
+console.log("Datos a enviar:", datos); // 👈 agrega esta línea
       fetch(API_URL, {
         method: "PATCH",
         headers: {
