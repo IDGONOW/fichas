@@ -103,9 +103,12 @@ for (const [key, val] of Object.entries(row)) {
   }
 }
 
-if (fotoUrl) {
-  html += `<img class="photo" src="${fotoUrl}" alt="Foto de identificación">`;
+if (fotoUrl && fotoUrl.startsWith("http")) {
+  html += `
+    <img class="photo" src="${fotoUrl}" alt="Foto de identificación"
+      onerror="this.style.display='none';" />`;
 }
+
 
 
       // INFORMACIÓN
