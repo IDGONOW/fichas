@@ -55,9 +55,7 @@
       font-weight: bold;
     }
     .call { background: #007bff; }
-    .whatsapp {
-      background: #25d366;
-    }
+    .whatsapp { background: #25d366; }
     .location { background: #444; }
     .btns img.icon {
       width: 20px;
@@ -89,14 +87,15 @@
       const omit = ["id", "createdAt", "updatedAt", "¿Qué tipo de identificación quieres registrar ?"];
       let html = "";
 
-      // Foto
-      let foto = row["Foto"];
+      // FOTO
+      const foto = row["Foto"];
       let fotoUrl = "";
+
       if (Array.isArray(foto)) {
         fotoUrl = foto[0]?.url || "";
       } else if (typeof foto === "object" && foto?.url) {
         fotoUrl = foto.url;
-      } else if (typeof foto === "string") {
+      } else if (typeof foto === "string" && foto.startsWith("http")) {
         fotoUrl = foto;
       }
 
@@ -104,7 +103,7 @@
         html += `<img class="photo" src="${fotoUrl}" alt="Foto de identificación">`;
       }
 
-      // Información
+      // INFO
       html += `<div class="info">`;
       for (const [key, val] of Object.entries(row)) {
         if (!val || omit.includes(key.trim()) || key === "Foto") continue;
@@ -112,9 +111,9 @@
       }
       html += `</div>`;
 
-      const nombre = row["Nombre de la persona"] || row["Nombre de la mascota"] || "su familiar o mascota";
+      const nombre = row["Nombre"] || "su familiar o mascota";
       const tel = row["Teléfono de contacto"]?.replace(/\D/g, "");
-      const mensajeBase = `Hola, he encontrado a ${nombre}, por favor comuníquese conmigo.`;
+      const mensaje = encodeURIComponent(`Hola, he encontrado a ${nombre}, por favor comuníquese conmigo.`);
 
       if (tel) {
         html += `
@@ -122,10 +121,10 @@
           <a href="tel:+51${tel}" class="call">
             <img class="icon" src="https://cdn-icons-png.flaticon.com/512/597/597177.png" alt="Teléfono"> Llamar
           </a>
-          <a href="https://wa.me/51${tel}?text=${encodeURIComponent(mensajeBase)}" class="whatsapp" target="_blank">
+          <a href="https://wa.me/51${tel}?text=${mensaje}" class="whatsapp" target="_blank">
             <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"> WhatsApp
           </a>
-          <a href="javascript:void(0)" onclick="enviarUbicacion('${tel}', '${mensajeBase}')" class="location">
+          <a href="javascript:void(0)" onclick="enviarUbicacion('${tel}', '${nombre}')" class="location">
             <img class="icon" src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Ubicación"> Enviar ubicación
           </a>
         </div>`;
@@ -137,7 +136,7 @@
       document.getElementById("contenido").innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
     });
 
-    function enviarUbicacion(tel, mensaje) {
+    function enviarUbicacion(tel, nombre) {
       if (!navigator.geolocation) {
         alert("Este navegador no soporta geolocalización.");
         return;
@@ -146,7 +145,7 @@
       navigator.geolocation.getCurrentPosition(pos => {
         const { latitude, longitude } = pos.coords;
         const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-        const fullMessage = `${mensaje}\nMi ubicación actual es: ${mapsLink}`;
+        const fullMessage = `Hola, he encontrado a ${nombre}. Mi ubicación actual es: ${mapsLink}`;
         window.open(`https://wa.me/51${tel}?text=${encodeURIComponent(fullMessage)}`, '_blank');
       }, () => {
         alert("No se pudo obtener la ubicación.");
