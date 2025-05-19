@@ -12,11 +12,19 @@
       max-width: 480px;
       margin: auto;
     }
+    .logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .logo img {
+      width: 180px;
+      max-width: 80%;
+    }
     h2 {
       text-align: center;
       color: #333;
     }
-    img {
+    img.foto {
       max-width: 100%;
       border-radius: 8px;
       margin: 1rem 0;
@@ -27,35 +35,62 @@
     }
     .btns {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       gap: 1rem;
       margin-top: 2rem;
     }
     .btns a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-decoration: none;
       color: white;
-      padding: 0.75rem 1.2rem;
+      padding: 0.75rem 1rem;
       border-radius: 6px;
       font-size: 16px;
+      font-weight: bold;
+      gap: 10px;
     }
     .call {
-      background: #28a745;
+      background: #007bff;
     }
     .whatsapp {
       background: #25d366;
     }
+    .location {
+      background: #6c757d;
+    }
+    .btns img {
+      width: 24px;
+      height: 24px;
+    }
   </style>
 </head>
 <body>
+  <div class="logo">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo" onerror="this.style.display='none';">
+  </div>
   <h2>Ficha de identificación</h2>
   <div id="contenido">Cargando ficha...</div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const recordId = params.get("id");
-
     const apiUrl = `https://idgonow.up.railway.app/api/v2/tables/m1ebsgkhbspdiqq/records/${recordId}`;
     const token = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+
+    let lat = null;
+    let lon = null;
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        lat = pos.coords.latitude;
+        lon = pos.coords.longitude;
+      },
+      err => {
+        console.warn("Ubicación no autorizada");
+      }
+    );
 
     fetch(apiUrl, {
       headers: {
@@ -71,29 +106,37 @@
       const rec = data.record || data;
       const nombre = rec["Nombre de la persona"] || rec["Nombre de la mascota"] || "su familiar o mascota";
       const tel = rec["Teléfono de contacto"]?.replace(/\D/g, "");
-      const mensaje = encodeURIComponent(`Hola, he encontrado a ${nombre}, por favor comuníquese conmigo.`);
-      const foto = rec["foto"];
+      const mensajeBase = `Hola, he encontrado a ${nombre}, por favor comuníquese conmigo.`;
+      const mensaje = encodeURIComponent(mensajeBase);
 
       let html = "";
 
-      if (foto && foto.startsWith("http")) {
-        html += `<img src="${foto}" alt="Foto">`;
+      const foto = rec["foto"];
+      if (foto && typeof foto === "string" && foto.startsWith("http")) {
+        html += `<img src="${foto}" alt="Foto" class="foto">`;
       }
 
       html += `<div class="info">`;
-
+      const omitidos = ["id", "createdAt", "updatedAt", "foto", "¿Qué tipo de identificación quieres registrar?"];
       for (const [key, val] of Object.entries(rec)) {
-        if (!val || key === "id" || key.toLowerCase().includes("url") || key === "foto") continue;
+        if (!val || omitidos.includes(key)) continue;
+        if (typeof val === "object") continue;
         html += `<p><strong>${key}:</strong> ${val}</p>`;
       }
-
       html += `</div>`;
 
       if (tel) {
         html += `
           <div class="btns">
-            <a href="tel:+51${tel}" class="call">Llamar</a>
-            <a href="https://wa.me/51${tel}?text=${mensaje}" target="_blank" class="whatsapp">WhatsApp</a>
+            <a href="tel:+51${tel}" class="call">
+              <img src="https://cdn-icons-png.flaticon.com/512/597/597177.png" alt="Teléfono"> Llamar
+            </a>
+            <a href="https://wa.me/51${tel}?text=${mensaje}" class="whatsapp" target="_blank">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"> WhatsApp
+            </a>
+            <a href="#" class="location" onclick="enviarUbicacion('${tel}', '${mensajeBase}')">
+              <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="GPS"> Enviar ubicación
+            </a>
           </div>
         `;
       }
@@ -103,6 +146,17 @@
     .catch(err => {
       document.getElementById("contenido").innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
     });
+
+    function enviarUbicacion(tel, mensajeBase) {
+      if (lat && lon) {
+        const ubicacion = `https://maps.google.com/?q=${lat},${lon}`;
+        const mensaje = encodeURIComponent(`${mensajeBase} Esta es mi ubicación: ${ubicacion}`);
+        window.open(`https://wa.me/51${tel}?text=${mensaje}`, "_blank");
+      } else {
+        alert("Ubicación no disponible. Asegúrate de haber autorizado el acceso.");
+      }
+    }
   </script>
 </body>
 </html>
+
