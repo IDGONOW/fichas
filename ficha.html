@@ -85,8 +85,19 @@
     .then(data => {
       const row = data.fields || data;
       console.log("Contenido de 'Foto':", row["Foto"]);
-      const omit = ["id", "createdat", "updatedat", "¿qué tipo de identificación quieres registrar ?", "url de ficha", "url de la ficha"];
-      let html = "";
+      const omit = [
+  "id", "createdat", "updatedat", "¿qué tipo de identificación quieres registrar ?", 
+  "url de ficha", "url de la ficha"
+].map(c => c.toLowerCase());
+
+html += `<div class="info">`;
+for (const [key, val] of Object.entries(row)) {
+  const k = key.trim().toLowerCase();
+  if (!val || omit.includes(k) || k.includes("foto")) continue;
+  html += `<p><strong>${key}:</strong> ${val}</p>`;
+}
+html += `</div>`;
+
 
       // FOTO
 // FOTO desde NocoDB
