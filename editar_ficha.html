@@ -87,29 +87,32 @@
       form.appendChild(btn);
     });
 
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const datos = Object.fromEntries(new FormData(form).entries());
-      datos.estado = "modificado";
-console.log("Datos a enviar:", datos); // 👈 agrega esta línea
-      fetch(API_URL, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "xc-token": API_TOKEN
-        },
-        body: JSON.stringify(datos)
-      })
-      .then(res => {
-        if (res.ok) {
-          alert("✅ Cambios guardados.");
-          window.location.href = `ficha.html?id=${recordId}`;
-        } else {
-          throw new Error("No se pudo guardar.");
-        }
-      })
-      .catch(err => alert("❌ Error: " + err.message));
-    });
+  form.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const datos = Object.fromEntries(new FormData(form).entries());
+  datos.estado = "modificado";
+
+  console.log("Datos a enviar:", datos); // 👈 agrega esta línea
+
+  fetch(API_URL, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "xc-token": API_TOKEN
+    },
+    body: JSON.stringify(datos)
+  })
+  .then(res => {
+    if (res.ok) {
+      alert("✅ Cambios guardados.");
+      window.location.href = `ficha.html?id=${recordId}`;
+    } else {
+      return res.text().then(text => { throw new Error(text); }); // ⬅️ muestra respuesta de error real
+    }
+  })
+  .catch(err => alert("❌ Error: " + err.message));
+});
+
   </script>
 </body>
 </html>
