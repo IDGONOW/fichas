@@ -81,53 +81,45 @@
     fetch(API_URL, {
       headers: { "xc-token": API_TOKEN }
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error("Registro no encontrado");
+      return res.json();
+    })
     .then(data => {
+      let html = "";
       const row = data.fields || data;
-      console.log("Contenido de 'Foto':", row["Foto"]);
+      if (!row || Object.keys(row).length === 0) {
+        throw new Error("Ficha vacía o sin datos.");
+      }
+
       const omit = [
-  "id", "createdat", "updatedat", "¿qué tipo de identificación quieres registrar ?", 
-  "url de ficha", "url de la ficha"
-].map(c => c.toLowerCase());
-
-html += `<div class="info">`;
-for (const [key, val] of Object.entries(row)) {
-  const k = key.trim().toLowerCase();
-  if (!val || omit.includes(k) || k.includes("foto")) continue;
-  html += `<p><strong>${key}:</strong> ${val}</p>`;
-}
-html += `</div>`;
-
+        "id", "createdat", "updatedat", "¿qué tipo de identificación quieres registrar ?", 
+        "url de ficha", "url de la ficha"
+      ].map(c => c.toLowerCase());
 
       // FOTO
-// FOTO desde NocoDB
-let fotoUrl = "";
+      let fotoUrl = "";
+      const fotoCampo = Object.entries(row).find(([k]) => k.trim().toLowerCase().includes("foto"));
+      if (fotoCampo) {
+        const val = fotoCampo[1];
+        if (Array.isArray(val) && val[0]?.path) {
+          fotoUrl = `https://idgonow.up.railway.app/${val[0].path}`;
+        } else if (typeof val === "string" && val.startsWith("http")) {
+          fotoUrl = val;
+        }
+      }
 
-const fotoCampo = Object.entries(row).find(([k]) => k.trim().toLowerCase().includes("foto"));
-if (fotoCampo) {
-  const val = fotoCampo[1];
-  if (Array.isArray(val) && val[0]?.path) {
-    fotoUrl = `https://idgonow.up.railway.app/${val[0].path}`;
-  } else if (typeof val === "string" && val.startsWith("http")) {
-    fotoUrl = val;
-  }
-}
+      if (fotoUrl) {
+        html += `
+          <img class="photo" src="${fotoUrl}" alt="Foto de identificación"
+            onerror="this.outerHTML='<div style=\\'text-align:center;margin:1rem 0;\\'><a href=\\'${fotoUrl}\\' target=\\'_blank\\'><button style=\\'background:#007bff;color:white;padding:0.6rem 1rem;border:none;border-radius:6px;cursor:pointer;font-size:15px;\\'>📷 Ver imagen</button></a></div>'">
+        `;
+      }
 
-if (fotoUrl) {
-  html += `
-    <img class="photo" src="${fotoUrl}" alt="Foto de identificación"
-      onerror="this.outerHTML='<div style=\\'text-align:center;margin:1rem 0;\\'><a href=\\'${fotoUrl}\\' target=\\'_blank\\'><button style=\\'background:#007bff;color:white;padding:0.6rem 1rem;border:none;border-radius:6px;cursor:pointer;font-size:15px;\\'>📷 Ver imagen</button></a></div>'">
-  `;
-}
-
-
-
-
-      // INFORMACIÓN
       html += `<div class="info">`;
       for (const [key, val] of Object.entries(row)) {
         const k = key.trim().toLowerCase();
-        if (!val || omit.includes(k) || k === "foto") continue;
+        if (!val || omit.includes(k) || k.includes("foto")) continue;
         html += `<p><strong>${key}:</strong> ${val}</p>`;
       }
       html += `</div>`;
@@ -175,5 +167,6 @@ if (fotoUrl) {
   </script>
 </body>
 </html>
+
 
 
