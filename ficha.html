@@ -103,9 +103,9 @@ for (const [key, val] of Object.entries(row)) {
   }
 }
 
-if (fotoUrl && fotoUrl.startsWith("http")) {
+if (fotoUrl && String(fotoUrl).startsWith("http")) {
   html += `
-    <img class="photo" src="${fotoUrl}" alt="Foto de identificación"
+    <img class="photo" src="${String(fotoUrl)}" alt="Foto de identificación"
       onerror="this.style.display='none';" />`;
 }
 
