@@ -88,19 +88,25 @@
       let html = "";
 
       // FOTO
-      let fotoUrl = "";
-      const foto = row["Foto"];
-      if (Array.isArray(foto)) {
-        fotoUrl = foto[0]?.url || "";
-      } else if (typeof foto === "object" && foto?.url) {
-        fotoUrl = foto.url;
-      } else if (typeof foto === "string" && foto.startsWith("http")) {
-        fotoUrl = foto;
-      }
+let fotoUrl = "";
+for (const [key, val] of Object.entries(row)) {
+  const k = key.trim().toLowerCase();
+  if (k.includes("foto") && val) {
+    if (typeof val === "string" && val.startsWith("http")) {
+      fotoUrl = val;
+    } else if (Array.isArray(val)) {
+      fotoUrl = val[0]?.url || val[0] || "";
+    } else if (typeof val === "object" && val.url) {
+      fotoUrl = val.url;
+    }
+    break;
+  }
+}
 
-      if (fotoUrl) {
-        html += `<img class="photo" src="${fotoUrl}" alt="Foto de identificación">`;
-      }
+if (fotoUrl) {
+  html += `<img class="photo" src="${fotoUrl}" alt="Foto de identificación">`;
+}
+
 
       // INFORMACIÓN
       html += `<div class="info">`;
