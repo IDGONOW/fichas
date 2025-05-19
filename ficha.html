@@ -84,7 +84,7 @@
     .then(res => res.json())
     .then(data => {
       const row = data.fields || data;
-      console.log("Todos los datos:", row);
+      console.log("Contenido de 'Foto':", row["Foto"]);
       const omit = ["id", "createdat", "updatedat", "¿qué tipo de identificación quieres registrar ?", "url de ficha", "url de la ficha"];
       let html = "";
 
