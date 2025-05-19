@@ -89,29 +89,24 @@
       let html = "";
 
       // FOTO
+// FOTO desde NocoDB
 let fotoUrl = "";
-for (const [key, val] of Object.entries(row)) {
-  const k = key.trim().toLowerCase();
-  if (k.includes("foto") && val) {
-    if (typeof val === "string" && val.startsWith("http")) {
-      fotoUrl = val;
-    } else if (Array.isArray(val)) {
-      fotoUrl = val[0]?.url || val[0] || "";
-    } else if (typeof val === "object" && val.url) {
-      fotoUrl = val.url;
-    }
-    break;
+
+const fotoCampo = Object.entries(row).find(([k]) => k.trim().toLowerCase().includes("foto"));
+if (fotoCampo) {
+  const val = fotoCampo[1];
+  if (Array.isArray(val) && val[0]?.path) {
+    fotoUrl = `https://idgonow.up.railway.app/${val[0].path}`;
+  } else if (typeof val === "string" && val.startsWith("http")) {
+    fotoUrl = val;
   }
 }
 
 if (fotoUrl) {
-  const fotoFinal = String(fotoUrl).startsWith("http") ? String(fotoUrl) : "";
-  if (fotoFinal) {
-    html += `
-      <img class="photo" src="${fotoFinal}" alt="Foto de identificación"
-        onerror="this.outerHTML='<div style=\\'text-align:center;margin:1rem 0;\\'><a href=\\'${fotoFinal}\\' target=\\'_blank\\'><button style=\\'background:#007bff;color:white;padding:0.6rem 1rem;border:none;border-radius:6px;cursor:pointer;font-size:15px;\\'>📷 Ver imagen</button></a></div>'">
-    `;
-  }
+  html += `
+    <img class="photo" src="${fotoUrl}" alt="Foto de identificación"
+      onerror="this.outerHTML='<div style=\\'text-align:center;margin:1rem 0;\\'><a href=\\'${fotoUrl}\\' target=\\'_blank\\'><button style=\\'background:#007bff;color:white;padding:0.6rem 1rem;border:none;border-radius:6px;cursor:pointer;font-size:15px;\\'>📷 Ver imagen</button></a></div>'">
+  `;
 }
 
 
