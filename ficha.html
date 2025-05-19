@@ -103,11 +103,16 @@ for (const [key, val] of Object.entries(row)) {
   }
 }
 
-if (fotoUrl && String(fotoUrl).startsWith("http")) {
-  html += `
-    <img class="photo" src="${String(fotoUrl)}" alt="Foto de identificación"
-      onerror="this.style.display='none';" />`;
+if (fotoUrl) {
+  const fotoFinal = String(fotoUrl).startsWith("http") ? String(fotoUrl) : "";
+  if (fotoFinal) {
+    html += `
+      <img class="photo" src="${fotoFinal}" alt="Foto de identificación"
+        onerror="this.outerHTML='<div style=\\'text-align:center;margin:1rem 0;\\'><a href=\\'${fotoFinal}\\' target=\\'_blank\\'><button style=\\'background:#007bff;color:white;padding:0.6rem 1rem;border:none;border-radius:6px;cursor:pointer;font-size:15px;\\'>📷 Ver imagen</button></a></div>'">
+    `;
+  }
 }
+
 
 
 
