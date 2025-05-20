@@ -1,0 +1,110 @@
+# HTML con logo, formulario completo con imagen y lógica de redirección
+html_con_foto = """
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro de Prueba con Foto | IDGoNow</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      max-width: 500px;
+      margin: auto;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .logo img {
+      width: 180px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    input, textarea {
+      padding: 0.6rem;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      padding: 0.8rem;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo" />
+  </div>
+
+  <h2>Registro de Prueba con Foto</h2>
+  <form id="formPrueba" enctype="multipart/form-data">
+    <input type="text" name="Nombre" placeholder="Nombre completo" required />
+    <input type="text" name="Edad" placeholder="Edad" />
+    <textarea name="Información médica o datos útiles" placeholder="Información médica o datos importantes"></textarea>
+
+    <label for="foto">Foto:</label>
+    <input type="file" name="Foto" accept="image/*" capture="environment" required />
+
+    <input type="text" name="Nombre del contacto" placeholder="Nombre del contacto en caso de emergencia" />
+    <input type="text" name="Teléfono de contacto" placeholder="Teléfono de contacto" />
+    <input type="email" name="Correo de contacto" placeholder="Correo electrónico de contacto" />
+
+    <button type="submit">Registrar</button>
+  </form>
+
+  <script>
+    const form = document.getElementById("formPrueba");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      formData.append("¿Qué tipo de identificación quieres registrar?", "persona");
+
+      console.log("Campos enviados:");
+      for (let [k, v] of formData.entries()) {
+        console.log(`${k}:`, v);
+      }
+
+      fetch("https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq", {
+        method: "POST",
+        headers: {
+          "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Respuesta completa:", data);
+        const id = data.id || data[0]?.id || data.data?.id;
+        if (id) {
+          window.location.href = `https://idgonow.github.io/fichas/ficha.html?id=${id}`;
+        } else {
+          alert("⚠️ Registro creado pero sin ID válido.");
+        }
+      })
+      .catch(err => alert("❌ Error al registrar ficha: " + err.message));
+    });
+  </script>
+</body>
+</html>
+"""
