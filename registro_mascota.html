@@ -37,6 +37,9 @@
       border-radius: 6px;
       cursor: pointer;
     }
+    label {
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -47,9 +50,14 @@
     <input type="text" name="Tipo de mascota" placeholder="Perro, gato, etc." />
     <input type="text" name="Raza y características" placeholder="Raza, color, tamaño, etc." />
     <textarea name="Información médica o datos útiles" placeholder="Información médica o detalles relevantes"></textarea>
+
+    <label for="foto">Foto de la mascota:</label>
+    <input type="file" name="Foto" accept="image/*" capture="environment" required />
+
     <input type="text" name="Nombre del contacto" placeholder="Nombre del dueño o contacto" />
     <input type="text" name="Teléfono de contacto" placeholder="Teléfono del contacto" />
     <input type="email" name="Correo de contacto" placeholder="Correo del contacto" />
+    
     <button type="submit">Registrar</button>
   </form>
 
@@ -58,18 +66,17 @@
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      const datos = Object.fromEntries(new FormData(form).entries());
+      const formData = new FormData(form);
 
       // Tipo de ficha
-      datos["¿Qué tipo de identificación quieres registrar?"] = "mascota";
+      formData.append("¿Qué tipo de identificación quieres registrar?", "mascota");
 
       fetch("https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
         },
-        body: JSON.stringify(datos)
+        body: formData
       })
       .then(res => res.json())
       .then(data => {
