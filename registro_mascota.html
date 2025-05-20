@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registrar Mascota | IDGoNow</title>
+  <title>Registro de Mascota | IDGoNow</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -55,20 +55,20 @@
   </div>
 
   <h2>Registro de Mascota</h2>
-  <form id="formMascota">
+  <form id="formMascota" enctype="multipart/form-data">
     <input type="text" name="Nombre" placeholder="Nombre de la mascota" required />
     <input type="text" name="Edad" placeholder="Edad o rango estimado" />
     <input type="text" name="Tipo de mascota" placeholder="Perro, gato, etc." />
     <input type="text" name="Raza y características" placeholder="Raza, color, tamaño, etc." />
     <textarea name="Información médica o datos útiles" placeholder="Información médica o detalles relevantes"></textarea>
 
-    <label for="foto">Foto de la mascota:</label>
-    <input type="file" name="Foto" accept="image/*" capture="environment" required />
+    <label for="foto">Foto:</label>
+    <input type="file" id="foto" name="Foto" accept="image/*" capture="environment" required />
 
     <input type="text" name="Nombre del contacto" placeholder="Nombre del dueño o contacto" />
     <input type="text" name="Teléfono de contacto" placeholder="Teléfono del contacto" />
     <input type="email" name="Correo de contacto" placeholder="Correo del contacto" />
-    
+
     <button type="submit">Registrar</button>
   </form>
 
@@ -77,22 +77,47 @@
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      const formData = new FormData(form);
-      formData.append("¿Qué tipo de identificación quieres registrar?", "mascota");
 
+      const datos = Object.fromEntries(new FormData(form).entries());
+      const fotoFile = form.querySelector('input[name="Foto"]').files[0];
+      delete datos["Foto"];
+      datos["¿Qué tipo de identificación quieres registrar?"] = "mascota";
+
+      // Paso 1: enviar datos como JSON
       fetch("https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
         },
-        body: formData
+        body: JSON.stringify(datos)
       })
-      .then(res => res.json())
-      .then(data => {
-        const id = data.id;
+      .then(async res => {
+        const text = await res.text();
+        try {
+          const data = JSON.parse(text);
+          console.log("Respuesta POST JSON:", data);
+          const id = data.Id || data.id || data.data?.id || data[0]?.id;
+          if (!id) throw new Error("No se pudo obtener ID del registro.");
+
+          const formData = new FormData();
+          formData.append("Foto", fotoFile);
+
+          return fetch(`https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq/${id}`, {
+            method: "PATCH",
+            headers: { "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy" },
+            body: formData
+          }).then(() => id);
+
+        } catch (e) {
+          console.error("Respuesta como texto plano:", text);
+          throw new Error("No se pudo procesar respuesta del servidor.");
+        }
+      })
+      .then(id => {
         window.location.href = `https://idgonow.github.io/fichas/ficha.html?id=${id}`;
       })
-      .catch(err => alert("❌ Error al registrar ficha: " + err.message));
+      .catch(err => alert("❌ Error: " + err.message));
     });
   </script>
 </body>
