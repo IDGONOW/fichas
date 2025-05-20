@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registrar Persona | IDGoNow</title>
+  <title>Prueba Registro Persona (sin foto)</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -11,13 +11,6 @@
       padding: 2rem;
       max-width: 500px;
       margin: auto;
-    }
-    .logo {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .logo img {
-      width: 180px;
     }
     h2 {
       text-align: center;
@@ -50,19 +43,11 @@
   </style>
 </head>
 <body>
-  <div class="logo">
-    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo" />
-  </div>
-
-  <h2>Registro de Persona</h2>
-  <form id="formPersona">
+  <h2>Prueba Registro Persona (sin foto)</h2>
+  <form id="formPersona" enctype="multipart/form-data">
     <input type="text" name="Nombre" placeholder="Nombre completo" required />
     <input type="text" name="Edad" placeholder="Edad" />
     <textarea name="Información médica o datos útiles" placeholder="Información médica o datos importantes"></textarea>
-
-    <label for="foto">Foto de la persona:</label>
-    <input type="file" name="Foto" accept="image/*" capture="environment" required />
-
     <input type="text" name="Nombre del contacto" placeholder="Nombre del contacto en caso de emergencia" />
     <input type="text" name="Teléfono de contacto" placeholder="Teléfono de contacto" />
     <input type="email" name="Correo de contacto" placeholder="Correo electrónico de contacto" />
@@ -78,6 +63,11 @@
       const formData = new FormData(form);
       formData.append("¿Qué tipo de identificación quieres registrar?", "persona");
 
+      console.log("Campos enviados:");
+      for (let [k, v] of formData.entries()) {
+        console.log(`${k}: ${v}`);
+      }
+
       fetch("https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq", {
         method: "POST",
         headers: {
@@ -87,11 +77,12 @@
       })
       .then(res => res.json())
       .then(data => {
-        const id = data.id;
-        window.location.href = `https://idgonow.github.io/fichas/ficha.html?id=${id}`;
+        console.log("Respuesta:", data);
+        const id = data.id || data[0]?.id || data.data?.id;
+        if (id) {
+          window.location.href = `https://idgonow.github.io/fichas/ficha.html?id=${id}`;
+        } else {
+          alert("⚠️ Registro creado pero sin ID válido.");
+        }
       })
-      .catch(err => alert("❌ Error al registrar ficha: " + err.message));
-    });
-  </script>
-</body>
-</html>
+      .catch(err => alert("❌ Error al registrar ficha
