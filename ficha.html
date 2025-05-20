@@ -79,7 +79,7 @@
     const params = new URLSearchParams(window.location.search);
     const recordId = params.get("id");
 
-    const API_URL = `https://idgonow.up.railway.app/api/v1/db/data/v1/noco/m1ebsgkhbspdiqq/${recordId}`;
+    const API_URL = `https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq/${recordId}`;
     const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
 
     fetch(API_URL, {
@@ -171,7 +171,7 @@
     });
 
     function confirmarFicha() {
-      fetch(`https://idgonow.up.railway.app/api/v1/db/data/v1/noco/m1ebsgkhbspdiqq/${recordId}`, {
+      fetch(`https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq/${recordId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
