@@ -54,10 +54,11 @@
     const form = document.getElementById("formEditar");
 
     const omit = [
-      "id", "createdat", "updatedat", "estado", "foto", "url de ficha", "url de la ficha"
+      "id", "createdat", "updatedat", "estado", 
+      "foto", "url de ficha", "url de la ficha"
     ].map(c => c.toLowerCase());
 
-    // Cargar y generar campos dinámicos
+    // Cargar y mostrar solo campos con valor
     fetch(API_URL, {
       headers: { "xc-token": API_TOKEN }
     })
@@ -68,14 +69,14 @@
       let visible = 0;
       for (const [campo, valor] of Object.entries(row)) {
         const k = campo.trim().toLowerCase();
-        if (omit.includes(k) || k.includes("foto")) continue;
+        if (omit.includes(k) || k.includes("foto") || !valor) continue;
 
         const label = document.createElement("label");
         label.textContent = campo;
 
         const input = document.createElement("textarea");
         input.name = campo;
-        input.value = valor || "";
+        input.value = valor;
         input.rows = 2;
 
         form.appendChild(label);
@@ -84,7 +85,7 @@
       }
 
       if (visible === 0) {
-        form.innerHTML = "<p style='color: red;'>⚠️ No hay campos visibles para editar.</p>";
+        form.innerHTML = "<p style='color: red;'>⚠️ No hay campos con información para editar.</p>";
         return;
       }
 
@@ -124,7 +125,3 @@
   </script>
 </body>
 </html>
-
-</body>
-</html>
-
