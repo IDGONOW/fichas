@@ -24,12 +24,37 @@
       font-size: 18px;
       color: #444;
       margin-top: 1rem;
+      max-width: 400px;
+    }
+    .btns {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .btns a, .btns button {
+      padding: 0.8rem 1.2rem;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      color: white;
+      background-color: #007bff;
+      cursor: pointer;
+    }
+    .btns button.close {
+      background-color: #6c757d;
     }
   </style>
 </head>
 <body>
   <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo" width="180"/>
   <h1>✅ ¡Gracias!</h1>
-  <p>Tu ficha ha sido registrada y está lista para ser usada por quien la encuentre.</p>
+  <p>Tu ficha ha sido registrada correctamente y ya está lista para ser usada por quien la escanee.</p>
+
+  <div class="btns">
+    <a href="https://idgonow.github.io/index.html">Volver al inicio</a>
+    <button class="close" onclick="window.close()">Cerrar pestaña</button>
+  </div>
 </body>
 </html>
