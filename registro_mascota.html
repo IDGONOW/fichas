@@ -12,6 +12,13 @@
       max-width: 500px;
       margin: auto;
     }
+    .logo {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .logo img {
+      width: 180px;
+    }
     h2 {
       text-align: center;
       color: #333;
@@ -43,6 +50,10 @@
   </style>
 </head>
 <body>
+  <div class="logo">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo" />
+  </div>
+
   <h2>Registro de Mascota</h2>
   <form id="formMascota">
     <input type="text" name="Nombre" placeholder="Nombre de la mascota" required />
@@ -67,8 +78,6 @@
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       const formData = new FormData(form);
-
-      // Tipo de ficha
       formData.append("¿Qué tipo de identificación quieres registrar?", "mascota");
 
       fetch("https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq", {
