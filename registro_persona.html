@@ -101,11 +101,11 @@
           const formData = new FormData();
           formData.append("Foto", fotoFile);
 
+          // ✅ Enviar archivo por PUT (no PATCH)
           return fetch(`https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq/${id}`, {
-            method: "PATCH",
+            method: "PUT",
             headers: {
               "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
-              // ❌ NO INCLUIR Content-Type AQUÍ
             },
             body: formData
           }).then(() => id);
