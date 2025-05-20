@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registrar Persona | IDGoNow</title>
+  <title>Registro de Persona | IDGoNow</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -55,14 +55,18 @@
   </div>
 
   <h2>Registro de Persona</h2>
-  <form id="formPersona">
+  <form id="formPersona" enctype="multipart/form-data">
     <input type="text" name="Nombre" placeholder="Nombre completo" required />
     <input type="text" name="Edad" placeholder="Edad" />
     <textarea name="Información médica o datos útiles" placeholder="Información médica o datos importantes"></textarea>
+
+    <label for="foto">Foto:</label>
+    <input type="file" id="foto" name="Foto" accept="image/*" capture="environment" required />
+
     <input type="text" name="Nombre del contacto" placeholder="Nombre del contacto en caso de emergencia" />
     <input type="text" name="Teléfono de contacto" placeholder="Teléfono de contacto" />
     <input type="email" name="Correo de contacto" placeholder="Correo electrónico de contacto" />
-    
+
     <button type="submit">Registrar</button>
   </form>
 
@@ -73,10 +77,11 @@
       e.preventDefault();
 
       const datos = Object.fromEntries(new FormData(form).entries());
+      const fotoFile = form.querySelector('input[name="Foto"]').files[0];
+      delete datos["Foto"];
       datos["¿Qué tipo de identificación quieres registrar?"] = "persona";
 
-      console.log("Datos enviados:", datos);
-
+      // Paso 1: Enviar datos de texto como JSON
       fetch("https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq", {
         method: "POST",
         headers: {
@@ -85,19 +90,34 @@
         },
         body: JSON.stringify(datos)
       })
-      .then(res => res.json())
-      .then(data => {
-        console.log("Respuesta:", data);
-        const id = data.id || data[0]?.id || data.data?.id;
-        if (id) {
-          window.location.href = `https://idgonow.github.io/fichas/ficha.html?id=${id}`;
-        } else {
-          alert("⚠️ Registro creado pero sin ID válido.");
+      .then(async res => {
+        const text = await res.text();
+        try {
+          const data = JSON.parse(text);
+          console.log("Respuesta POST JSON:", data);
+          const id = data.Id || data.id || data.data?.id || data[0]?.id;
+          if (!id) throw new Error("No se pudo obtener ID del registro.");
+
+          // Paso 2: Subir foto como PATCH
+          const formData = new FormData();
+          formData.append("Foto", fotoFile);
+
+          return fetch(`https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq/${id}`, {
+            method: "PATCH",
+            headers: { "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy" },
+            body: formData
+          }).then(() => id);
+
+        } catch (e) {
+          console.error("Respuesta como texto plano:", text);
+          throw new Error("No se pudo procesar respuesta del servidor.");
         }
       })
-      .catch(err => alert("❌ Error al registrar ficha: " + err.message));
+      .then(id => {
+        window.location.href = `https://idgonow.github.io/fichas/ficha.html?id=${id}`;
+      })
+      .catch(err => alert("❌ Error: " + err.message));
     });
   </script>
 </body>
 </html>
-
