@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subida de Foto Debug | IDGoNow</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      max-width: 500px;
+      margin: auto;
+      text-align: center;
+    }
+    input[type="file"] {
+      margin: 1rem 0;
+    }
+    button {
+      padding: 0.8rem;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Subir Foto al Registro ID 30</h2>
+  <input type="file" id="foto" accept="image/*" capture="environment" />
+  <br />
+  <button onclick="subirFoto()">Subir Foto</button>
+
+  <script>
+    function subirFoto() {
+      const fileInput = document.getElementById("foto");
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Selecciona una foto primero.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("Foto", file);
+
+      console.log("Subiendo archivo:", file.name, file.size);
+
+      fetch("https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq/30", {
+        method: "PATCH",
+        headers: {
+          "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
+        },
+        body: formData
+      })
+      .then(res => res.text())
+      .then(text => {
+        console.log("Respuesta del servidor:", text);
+        alert("✅ Foto enviada. Verifica en NocoDB si fue cargada.");
+      })
+      .catch(err => {
+        console.error("❌ Error:", err);
+        alert("❌ Error al subir la foto.");
+      });
+    }
+  </script>
+</body>
+</html>
