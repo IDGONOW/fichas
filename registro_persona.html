@@ -76,7 +76,14 @@
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       const formData = new FormData(form);
+      const foto = form.querySelector('input[name="Foto"]').files[0];
       formData.append("¿Qué tipo de identificación quieres registrar?", "persona");
+
+      if (!foto) {
+        console.warn("⚠️ Foto vacía o no seleccionada.");
+      } else {
+        console.log("📸 Foto seleccionada:", foto.name, foto.size, foto.type);
+      }
 
       fetch("https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq", {
         method: "POST",
@@ -87,6 +94,7 @@
       })
       .then(res => res.json())
       .then(data => {
+        console.log("✅ Respuesta completa:", data);
         const id = data.Id || data.id || data.data?.id || data[0]?.id;
         if (!id) throw new Error("No se pudo obtener ID del registro.");
         window.location.href = `https://idgonow.github.io/fichas/ficha.html?id=${id}`;
@@ -99,3 +107,4 @@
   </script>
 </body>
 </html>
+
