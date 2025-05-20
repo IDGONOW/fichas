@@ -1,11 +1,9 @@
-# HTML con logo, formulario completo con imagen y lógica de redirección
-html_con_foto = """
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registro de Prueba con Foto | IDGoNow</title>
+  <title>Registro Final | IDGoNow</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -56,14 +54,14 @@ html_con_foto = """
     <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo" />
   </div>
 
-  <h2>Registro de Prueba con Foto</h2>
-  <form id="formPrueba" enctype="multipart/form-data">
+  <h2>Registro Final con Foto</h2>
+  <form id="formFinal">
     <input type="text" name="Nombre" placeholder="Nombre completo" required />
     <input type="text" name="Edad" placeholder="Edad" />
     <textarea name="Información médica o datos útiles" placeholder="Información médica o datos importantes"></textarea>
 
     <label for="foto">Foto:</label>
-    <input type="file" name="Foto" accept="image/*" capture="environment" required />
+    <input type="file" id="foto" name="Foto" accept="image/*" capture="environment" required />
 
     <input type="text" name="Nombre del contacto" placeholder="Nombre del contacto en caso de emergencia" />
     <input type="text" name="Teléfono de contacto" placeholder="Teléfono de contacto" />
@@ -73,36 +71,45 @@ html_con_foto = """
   </form>
 
   <script>
-    const form = document.getElementById("formPrueba");
+    const form = document.getElementById("formFinal");
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      const formData = new FormData(form);
-      formData.append("¿Qué tipo de identificación quieres registrar?", "persona");
 
-      console.log("Campos enviados:");
-      for (let [k, v] of formData.entries()) {
-        console.log(`${k}:`, v);
-      }
+      const datos = Object.fromEntries(new FormData(form).entries());
+      const fotoFile = form.querySelector('input[name="Foto"]').files[0];
+      delete datos["Foto"];
 
+      datos["¿Qué tipo de identificación quieres registrar?"] = "persona";
+
+      // Paso 1: Enviar datos como JSON
       fetch("https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
         },
-        body: formData
+        body: JSON.stringify(datos)
       })
       .then(res => res.json())
       .then(data => {
-        console.log("Respuesta completa:", data);
-        const id = data.id || data[0]?.id || data.data?.id;
-        if (id) {
-          window.location.href = `https://idgonow.github.io/fichas/ficha.html?id=${id}`;
-        } else {
-          alert("⚠️ Registro creado pero sin ID válido.");
-        }
+        const id = data.id;
+        if (!id) throw new Error("No se pudo obtener ID del registro.");
+
+        // Paso 2: Subir la foto por separado (PATCH)
+        const formData = new FormData();
+        formData.append("Foto", fotoFile);
+
+        return fetch(`https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq/${id}`, {
+          method: "PATCH",
+          headers: { "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy" },
+          body: formData
+        }).then(() => id);
       })
-      .catch(err => alert("❌ Error al registrar ficha: " + err.message));
+      .then(id => {
+        window.location.href = `https://idgonow.github.io/fichas/ficha.html?id=${id}`;
+      })
+      .catch(err => alert("❌ Error: " + err.message));
     });
   </script>
 </body>
