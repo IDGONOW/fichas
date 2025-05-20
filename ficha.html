@@ -42,7 +42,7 @@
       gap: 0.7rem;
       margin-top: 2rem;
     }
-    .btns a {
+    .btns a, .btns button {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -53,10 +53,14 @@
       border-radius: 6px;
       font-size: 16px;
       font-weight: bold;
+      border: none;
+      cursor: pointer;
     }
     .call { background: #007bff; }
     .whatsapp { background: #25d366; }
     .location { background: #444; }
+    .confirmar { background: #28a745; }
+    .editar { background: #007bff; }
     .btns img.icon {
       width: 20px;
       height: 20px;
@@ -75,7 +79,7 @@
     const params = new URLSearchParams(window.location.search);
     const recordId = params.get("id");
 
-    const API_URL = `https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq/${recordId}`;
+    const API_URL = `https://idgonow.up.railway.app/api/v1/db/data/v1/noco/m1ebsgkhbspdiqq/${recordId}`;
     const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
 
     fetch(API_URL, {
@@ -125,12 +129,14 @@
       }
       html += `</div>`;
 
-      // BOTONES DE ACCIÓN
+      // ESTADO
+      const estado = (row["Estado"] || "").toLowerCase();
       const nombre = row["Nombre"] || "su familiar o mascota";
       const tel = row["Teléfono de contacto"]?.replace(/\D/g, "");
       const mensaje = encodeURIComponent(`Hola, he encontrado a ${nombre}, por favor comuníquese conmigo.`);
 
-      if (tel) {
+      // BOTONES de contacto (solo si la ficha está confirmada)
+      if (estado === "confirmado" && tel) {
         html += `
         <div class="btns">
           <a href="tel:+51${tel}" class="call">
@@ -145,18 +151,18 @@
         </div>`;
       }
 
-      // BOTONES DE CONFIRMACIÓN Y EDICIÓN
-      html += `
-      <div style="text-align: center; margin-top: 2rem;">
-        <button onclick="confirmarFicha()" style="padding: 10px 20px; margin: 0 10px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">
-          ✅ Confirmar ficha
-        </button>
-        <a href="https://idgonow.github.io/fichas/editar_ficha.html?id=${recordId}">
-          <button style="padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">
-            ✏️ Editar ficha
+      // BOTONES de edición/confirmación (solo si la ficha NO está confirmada)
+      if (estado !== "confirmado") {
+        html += `
+        <div class="btns">
+          <button onclick="confirmarFicha()" class="confirmar">
+            ✅ Confirmar ficha
           </button>
-        </a>
-      </div>`;
+          <a href="https://idgonow.github.io/fichas/editar_ficha.html?id=${recordId}" class="editar">
+            ✏️ Editar ficha
+          </a>
+        </div>`;
+      }
 
       document.getElementById("contenido").innerHTML = html;
     })
@@ -165,17 +171,21 @@
     });
 
     function confirmarFicha() {
-      fetch(`https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq/${recordId}`, {
+      fetch(`https://idgonow.up.railway.app/api/v1/db/data/v1/noco/m1ebsgkhbspdiqq/${recordId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           "xc-token": API_TOKEN
         },
-        body: JSON.stringify({ Estado: "confirmado" })
+        body: JSON.stringify({ "Estado": "confirmado" })
       })
       .then(res => {
-        if (res.ok) alert("✅ Ficha confirmada con éxito.");
-        else throw new Error("No se pudo confirmar.");
+        if (res.ok) {
+          alert("✅ Ficha confirmada con éxito.");
+          location.reload();
+        } else {
+          return res.text().then(text => { throw new Error(text); });
+        }
       })
       .catch(err => alert("❌ Error: " + err.message));
     }
