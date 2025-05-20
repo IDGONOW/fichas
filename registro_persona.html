@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Prueba Registro Persona (sin foto)</title>
+  <title>Registrar Persona | IDGoNow</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -11,6 +11,13 @@
       padding: 2rem;
       max-width: 500px;
       margin: auto;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .logo img {
+      width: 180px;
     }
     h2 {
       text-align: center;
@@ -43,8 +50,12 @@
   </style>
 </head>
 <body>
-  <h2>Prueba Registro Persona (sin foto)</h2>
-  <form id="formPersona" enctype="multipart/form-data">
+  <div class="logo">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo" />
+  </div>
+
+  <h2>Registro de Persona</h2>
+  <form id="formPersona">
     <input type="text" name="Nombre" placeholder="Nombre completo" required />
     <input type="text" name="Edad" placeholder="Edad" />
     <textarea name="Información médica o datos útiles" placeholder="Información médica o datos importantes"></textarea>
@@ -60,20 +71,19 @@
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      const formData = new FormData(form);
-      formData.append("¿Qué tipo de identificación quieres registrar?", "persona");
 
-      console.log("Campos enviados:");
-      for (let [k, v] of formData.entries()) {
-        console.log(`${k}: ${v}`);
-      }
+      const datos = Object.fromEntries(new FormData(form).entries());
+      datos["¿Qué tipo de identificación quieres registrar?"] = "persona";
+
+      console.log("Datos enviados:", datos);
 
       fetch("https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/m1ebsgkhbspdiqq", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
         },
-        body: formData
+        body: JSON.stringify(datos)
       })
       .then(res => res.json())
       .then(data => {
@@ -85,4 +95,9 @@
           alert("⚠️ Registro creado pero sin ID válido.");
         }
       })
-      .catch(err => alert("❌ Error al registrar ficha
+      .catch(err => alert("❌ Error al registrar ficha: " + err.message));
+    });
+  </script>
+</body>
+</html>
+
