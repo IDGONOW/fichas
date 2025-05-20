@@ -54,10 +54,10 @@
     const form = document.getElementById("formEditar");
 
     const omit = [
-      "id", "createdat", "updatedat", "Estado",
-      "foto", "url de la ficha", "url de ficha"
+      "id", "createdat", "updatedat", "estado", "foto", "url de ficha", "url de la ficha"
     ].map(c => c.toLowerCase());
 
+    // Cargar y generar campos dinámicos
     fetch(API_URL, {
       headers: { "xc-token": API_TOKEN }
     })
@@ -65,64 +65,66 @@
     .then(data => {
       const row = data.fields || data;
 
+      let visible = 0;
       for (const [campo, valor] of Object.entries(row)) {
         const k = campo.trim().toLowerCase();
-        if (!valor || omit.includes(k) || k.includes("foto")) continue;
+        if (omit.includes(k) || k.includes("foto")) continue;
 
         const label = document.createElement("label");
         label.textContent = campo;
 
         const input = document.createElement("textarea");
         input.name = campo;
-        input.value = valor;
+        input.value = valor || "";
         input.rows = 2;
 
         form.appendChild(label);
         form.appendChild(input);
+        visible++;
+      }
+
+      if (visible === 0) {
+        form.innerHTML = "<p style='color: red;'>⚠️ No hay campos visibles para editar.</p>";
+        return;
       }
 
       const btn = document.createElement("button");
       btn.type = "submit";
       btn.textContent = "Guardar cambios";
       form.appendChild(btn);
+    })
+    .catch(err => {
+      form.innerHTML = `<p style="color:red;">❌ Error al cargar ficha: ${err.message}</p>`;
     });
 
- form.addEventListener("submit", function (e) {
-  e.preventDefault();
-  const datos = Object.fromEntries(new FormData(form).entries());
-  datos["Estado"] = "modificado";
+    // Guardar cambios
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const datos = Object.fromEntries(new FormData(form).entries());
+      datos["Estado"] = "modificado";
 
-  fetch(API_URL, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      "xc-token": API_TOKEN
-    },
-    body: JSON.stringify(datos)
-  })
-  .then(res => {
-    if (res.ok) {
-      alert("✅ Cambios guardados. Ahora revisa tu ficha y presiona 'Confirmar' para finalizar el registro.");
-      window.location.href = `ficha.html?id=${recordId}`;
-    } else {
-      return res.text().then(text => { throw new Error(text); });
-    }
-  })
-  .catch(err => alert("❌ Error: " + err.message));
-});
-
-  .then(res => {
-    if (res.ok) {
-      alert("✅ Cambios guardados.");
-      window.location.href = `ficha.html?id=${recordId}`;
-    } else {
-      return res.text().then(text => { throw new Error(text); }); // ⬅️ muestra respuesta de error real
-    }
-  })
-  .catch(err => alert("❌ Error: " + err.message));
-});
-
+      fetch(API_URL, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "xc-token": API_TOKEN
+        },
+        body: JSON.stringify(datos)
+      })
+      .then(res => {
+        if (res.ok) {
+          alert("✅ Cambios guardados. Ahora revisa tu ficha y presiona 'Confirmar' para finalizar el registro.");
+          window.location.href = `ficha.html?id=${recordId}`;
+        } else {
+          return res.text().then(text => { throw new Error(text); });
+        }
+      })
+      .catch(err => alert("❌ Error: " + err.message));
+    });
   </script>
+</body>
+</html>
+
 </body>
 </html>
 
