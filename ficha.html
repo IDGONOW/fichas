@@ -3,99 +3,136 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ficha | IDGoNow</title>
+  <title>IDGoNow | Ficha</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #eaf3fc;
+      background: #f9f9f9;
+      margin: 0;
       padding: 1rem;
-      max-width: 480px;
-      margin: auto;
-      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
 
     .logo {
       text-align: center;
-      margin-bottom: 0.5rem;
     }
 
     .logo img {
-      width: 160px;
+      width: 140px;
+      margin-bottom: 0.5rem;
     }
 
-    h2 {
+    .titulo {
       text-align: center;
-      color: #1a73e8;
-      margin: 0.5rem 0 1rem;
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-top: 0.2rem;
+      margin-bottom: 1rem;
     }
 
-    img.photo {
-      width: 100%;
-      max-height: 320px;
+    .foto-circular {
+      width: 120px;
+      height: 120px;
       object-fit: cover;
-      border-radius: 10px;
-      margin: 1rem 0;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      display: block;
+      border: 4px solid #eee;
     }
 
-    .info {
-      background: #fff;
-      border-radius: 10px;
+    .info-central {
+      background: #f3f3f3;
       padding: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      text-align: center;
+      border-radius: 10px;
+      margin-bottom: 1.2rem;
     }
 
-    .info p {
-      margin: 0.4rem 0;
+    .info-central p {
+      margin: 0.3rem 0;
       font-size: 16px;
     }
 
-    .info strong {
-      color: #444;
+    .seccion-contacto {
+      background: #007b8f;
+      color: white;
+      padding: 0.8rem 1rem;
+      border-radius: 10px 10px 0 0;
+      font-weight: bold;
+    }
+
+    .datos-contacto {
+      border: 1px solid #007b8f;
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .datos-contacto p {
+      margin: 0.3rem 0;
+      font-size: 15px;
     }
 
     .btns {
       display: flex;
       flex-direction: column;
       gap: 0.7rem;
-      margin-top: 2rem;
     }
 
     .btns a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
       text-decoration: none;
-      color: white;
-      padding: 0.8rem;
+      text-align: center;
+      padding: 0.9rem;
       border-radius: 8px;
-      font-size: 16px;
       font-weight: bold;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      color: white;
+      font-size: 16px;
     }
 
-    .call { background: #1a73e8; }
-    .whatsapp { background: #25d366; }
-    .location { background: #fbbc05; color: #333; }
-    .btns img.icon {
-      width: 20px;
-      height: 20px;
-    }
+    .call { background-color: #1a73e8; }
+    .whatsapp { background-color: #25d366; }
+    .ubicacion { background-color: #fbbc05; color: #222; }
   </style>
 </head>
 <body>
-  <div class="logo">
-    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo" />
-  </div>
+  <div class="container">
+    <div class="logo">
+      <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" />
+    </div>
+    <div class="titulo" id="titulo">Hola</div>
+    <img src="" alt="Foto" class="foto-circular" id="foto"/>
 
-  <h2>Ficha de Identificación</h2>
-  <div id="contenido">Cargando ficha...</div>
+    <div class="info-central">
+      <p><strong>Edad:</strong> <span id="edad"></span></p>
+      <p><span id="tipo_raza"></span></p>
+      <p id="info_medica"></p>
+    </div>
+
+    <div class="seccion-contacto">📇 Datos del contacto</div>
+    <div class="datos-contacto">
+      <p id="contacto_nombre"></p>
+      <p id="contacto_telefono"></p>
+      <p id="contacto_correo"></p>
+    </div>
+
+    <div class="btns" id="botones"></div>
+  </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const recordId = params.get("id");
-
     const API_URL = `https://idgonow.up.railway.app/api/v2/tables/m1ebsgkhbspdiqq/records/${recordId}`;
     const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
 
@@ -105,16 +142,10 @@
     .then(res => res.json())
     .then(data => {
       const row = data.fields || data;
-      const omit = [
-        "id", "createdat", "updatedat",
-        "¿qué tipo de identificación quieres registrar?",
-        "estado", "url de ficha", "url de la ficha", "foto"
-      ];
-      let html = "";
+      document.getElementById("titulo").innerText = "Hola, soy " + (row["Nombre"] || "");
 
-      // Mostrar foto
+      const fotoCampo = Object.entries(row).find(([k]) => k.toLowerCase().includes("foto"));
       let fotoUrl = "";
-      const fotoCampo = Object.entries(row).find(([k]) => k.trim().toLowerCase().includes("foto"));
       if (fotoCampo) {
         const val = fotoCampo[1];
         if (Array.isArray(val) && val[0]?.path) {
@@ -123,61 +154,41 @@
           fotoUrl = val;
         }
       }
-      if (fotoUrl) {
-        html += `<img class="photo" src="${fotoUrl}" alt="Foto de identificación" />`;
-      }
+      if (fotoUrl) document.getElementById("foto").src = fotoUrl;
 
-      // Mostrar info
-      html += `<div class="info">`;
-      for (const [key, val] of Object.entries(row)) {
-        const k = key.trim().toLowerCase();
-        if (!val || omit.includes(k)) continue;
-        html += `<p><strong>${key}:</strong> ${val}</p>`;
-      }
-      html += `</div>`;
+      document.getElementById("edad").innerText = row["Edad"] || "-";
+      document.getElementById("tipo_raza").innerText = [row["Tipo de mascota"], row["Raza y características"]].filter(Boolean).join(" · ");
+      document.getElementById("info_medica").innerText = row["Información médica o datos útiles"] || "";
 
-      // Botones si hay teléfono
-      const nombre = row["Nombre"] || "su familiar o mascota";
-      const tel = row["Teléfono de contacto"]?.replace(/\D/g, "");
+      document.getElementById("contacto_nombre").innerText = row["Nombre del contacto"] || "";
+      document.getElementById("contacto_telefono").innerText = row["Teléfono de contacto"] || "";
+      document.getElementById("contacto_correo").innerText = row["Correo de contacto"] || "";
+
+      const nombre = row["Nombre"] || "la persona o mascota";
+      const tel = row["Teléfono de contacto"]?.replace(/\\D/g, "");
       const mensaje = encodeURIComponent(`Hola, he encontrado a ${nombre}, por favor comuníquese conmigo.`);
+      const botonesDiv = document.getElementById("botones");
 
       if (tel) {
-        html += `
-        <div class="btns">
-          <a href="tel:+51${tel}" class="call">
-            <img class="icon" src="https://cdn-icons-png.flaticon.com/512/597/597177.png" alt="Teléfono"> Llamar
-          </a>
-          <a href="https://wa.me/51${tel}?text=${mensaje}" class="whatsapp" target="_blank">
-            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"> WhatsApp
-          </a>
-          <a href="javascript:void(0)" onclick="enviarUbicacion('${tel}', '${nombre}')" class="location">
-            <img class="icon" src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Ubicación"> Enviar ubicación
-          </a>
-        </div>`;
+        botonesDiv.innerHTML = `
+          <a href="tel:+51${tel}" class="call">📞 Llamar</a>
+          <a href="https://wa.me/51${tel}?text=${mensaje}" target="_blank" class="whatsapp">💬 WhatsApp</a>
+          <a href="javascript:void(0)" onclick="enviarUbicacion('${tel}', '${nombre}')" class="ubicacion">📍 Enviar ubicación</a>
+        `;
       }
-
-      document.getElementById("contenido").innerHTML = html;
-    })
-    .catch(err => {
-      document.getElementById("contenido").innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
     });
 
     function enviarUbicacion(tel, nombre) {
-      if (!navigator.geolocation) {
-        alert("Este navegador no soporta geolocalización.");
-        return;
-      }
-
+      if (!navigator.geolocation) return alert("Este navegador no soporta geolocalización.");
       navigator.geolocation.getCurrentPosition(pos => {
         const { latitude, longitude } = pos.coords;
-        const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-        const fullMessage = `Hola, he encontrado a ${nombre}. Mi ubicación actual es: ${mapsLink}`;
-        window.open(`https://wa.me/51${tel}?text=${encodeURIComponent(fullMessage)}`, '_blank');
-      }, () => {
-        alert("No se pudo obtener la ubicación.");
-      });
+        const link = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        const msg = `Hola, he encontrado a ${nombre}. Mi ubicación es: ${link}`;
+        window.open(`https://wa.me/51${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+      }, () => alert("No se pudo obtener la ubicación."));
     }
   </script>
 </body>
 </html>
+
 
