@@ -107,7 +107,7 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <main class="container">
     <div class="logo">
       <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" />
     </div>
@@ -120,74 +120,153 @@
     <div class="datos-contacto" id="datosContacto"></div>
 
     <div class="btns" id="botones"></div>
-  </div>
+  </main>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const recordId = params.get("id");
+    // Script to fetch and display record details from IDGoNow API
+
+    // --- Configuration ---
+    const params = new URLSearchParams(window.location.search); // Get URL parameters
+    const recordId = params.get("id"); // Extract the record ID from URL (e.g., "?id=RECORD_ID_HERE")
+    // API endpoint for fetching specific record data from NocoDB
     const API_URL = `https://idgonow.up.railway.app/api/v2/tables/m1ebsgkhbspdiqq/records/${recordId}`;
+    // API Token for NocoDB (NOTE: Client-side exposure of API tokens is a security risk. Consider using a backend proxy.)
     const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
 
-    fetch(API_URL, {
-      headers: { "xc-token": API_TOKEN }
-    })
-    .then(res => res.json())
-    .then(data => {
-      const row = data.fields || data;
-      document.getElementById("titulo").innerText = "Hola, soy " + (row["Nombre"] || "");
+    // --- DOM Elements (Implicitly used via getElementById) ---
+    // titulo: Displays the name.
+    // foto: Displays the image.
+    // infoCentral: Container for general information.
+    // datosContacto: Container for contact details.
+    // botones: Container for action buttons.
 
+    // --- Fetch Record Data ---
+    // Makes a GET request to the API_URL to retrieve the record.
+    fetch(API_URL, {
+      headers: { "xc-token": API_TOKEN } // Pass API token in request headers for authorization.
+    })
+    .then(res => {
+      // Check if the HTTP response is successful (status code 200-299).
+      if (!res.ok) {
+        // If not successful, throw an error to be caught by the .catch block.
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json(); // Parse the response body as JSON.
+    })
+    .then(data => {
+      // --- Process Fetched Data ---
+      // NocoDB data can be directly in `data` or within `data.fields` depending on API version or configuration.
+      const row = data.fields || data;
+      // Use the "Nombre" field for the main name, default to "Mascota/Persona" if not available.
+      const nombreMascotaPersona = row["Nombre"] || "Mascota/Persona";
+
+      // Update page title (e.g., "Hola, soy [Nombre]")
+      document.getElementById("titulo").innerText = "Hola, soy " + nombreMascotaPersona;
+
+      // --- Photo Handling ---
+      const fotoElement = document.getElementById("foto"); // Get the image element.
+      // Find the photo field in the response data. It often includes "foto" in its key (case-insensitive).
       const fotoCampo = Object.entries(row).find(([k]) => k.toLowerCase().includes("foto"));
-      let fotoUrl = "";
+      let fotoUrl = ""; // Initialize photoUrl.
+
       if (fotoCampo) {
-        const val = fotoCampo[1];
+        const val = fotoCampo[1]; // Value of the photo field.
+        // NocoDB can store photos as an array of objects (with path) or as a direct URL string.
         if (Array.isArray(val) && val[0]?.path) {
+          // If it's an array and has a path, construct the full URL.
+          // Assumes files are served from the same base URL as the API.
           fotoUrl = `https://idgonow.up.railway.app/${val[0].path}`;
         } else if (typeof val === "string" && val.startsWith("http")) {
+          // If it's a string and looks like a URL, use it directly.
           fotoUrl = val;
         }
       }
-      if (fotoUrl) document.getElementById("foto").src = fotoUrl;
 
-      const infoCentral = document.getElementById("infoCentral");
-      const contacto = document.getElementById("datosContacto");
+      if (fotoUrl) {
+        // If a valid photoUrl was found, set the image source and alt text.
+        fotoElement.src = fotoUrl;
+        fotoElement.alt = "Foto de " + nombreMascotaPersona;
+      } else {
+        // If no photo URL, hide the image element and set appropriate alt text.
+        fotoElement.alt = "Foto no disponible";
+        fotoElement.style.display = "none"; // Hides the image element.
+      }
 
+      // --- Populate Information Sections ---
+      const infoCentral = document.getElementById("infoCentral"); // Container for general info.
+      const contacto = document.getElementById("datosContacto"); // Container for contact details.
+
+      // Helper function to add a line of information (e.g., "Edad: 5 años") to a given container.
+      // titulo: The label (e.g., "Edad").
+      // valor: The value (e.g., row["Edad"]).
+      // contenedor: The DOM element to append the new paragraph to.
       function agregarLinea(titulo, valor, contenedor) {
-        if (valor) {
+        if (valor) { // Only add the line if the value is not null, undefined, or empty.
           contenedor.innerHTML += `<p><strong>${titulo}:</strong> ${valor}</p>`;
         }
       }
 
+      // Populate general information using agregarLinea.
       agregarLinea("Edad", row["Edad"], infoCentral);
-      agregarLinea("Tipo", row["Tipo de mascota"], infoCentral);
-      agregarLinea("Raza", row["Raza y características"], infoCentral);
+      agregarLinea("Tipo", row["Tipo de mascota"], infoCentral); // e.g., "Perro", "Gato"
+      agregarLinea("Raza y características", row["Raza y características"], infoCentral);
       agregarLinea("Información médica o datos útiles", row["Información médica o datos útiles"], infoCentral);
 
+      // Populate contact information.
       agregarLinea("Nombre", row["Nombre del contacto"], contacto);
       agregarLinea("Teléfono", row["Teléfono de contacto"], contacto);
       agregarLinea("Correo", row["Correo de contacto"], contacto);
 
-      const nombre = row["Nombre"] || "la persona o mascota";
-      const tel = row["Teléfono de contacto"]?.replace(/\\D/g, "");
-      const mensaje = encodeURIComponent(`Hola, he encontrado a ${nombre}, por favor comuníquese conmigo.`);
-      const botonesDiv = document.getElementById("botones");
+      // --- Action Buttons ---
+      // Use the main name for messages, defaulting if not available.
+      const nombreParaMensajes = row["Nombre"] || "la persona o mascota";
+      // Get the contact phone number and remove any non-digit characters.
+      const tel = row["Teléfono de contacto"]?.replace(/\D/g, "");
+      // Prepare the default WhatsApp message.
+      const mensajeWhatsapp = encodeURIComponent(`Hola, he encontrado a ${nombreParaMensajes}, por favor comuníquese conmigo.`);
+      const botonesDiv = document.getElementById("botones"); // Container for buttons.
 
       if (tel) {
+        // If a phone number is available, create and display the action buttons.
+        // NOTE: "+51" prefix is hardcoded for Peru. This might need adjustment for international use.
         botonesDiv.innerHTML = `
           <a href="tel:+51${tel}" class="call">📞 Llamar</a>
-          <a href="https://wa.me/51${tel}?text=${mensaje}" target="_blank" class="whatsapp">💬 WhatsApp</a>
-          <a href="javascript:void(0)" onclick="enviarUbicacion('${tel}', '${nombre}')" class="ubicacion">📍 Enviar ubicación</a>
+          <a href="https://wa.me/51${tel}?text=${mensajeWhatsapp}" target="_blank" class="whatsapp">💬 WhatsApp</a>
+          <a href="javascript:void(0)" onclick="enviarUbicacion('${tel}', '${nombreParaMensajes}')" class="ubicacion">📍 Enviar ubicación</a>
         `;
       }
+    })
+    .catch(err => {
+      // Handle errors during API fetch or data processing.
+      console.error("❌ Error:", err); // Log error to the console.
+      // Display a user-friendly error message.
+      alert("❌ Error al cargar los datos de la ficha: " + err.message);
     });
 
+    // --- Geolocation Function ---
+    // Function to get the user's current location and send it via WhatsApp.
+    // tel: The recipient's phone number.
+    // nombre: The name of the person/pet found, for the message.
     function enviarUbicacion(tel, nombre) {
-      if (!navigator.geolocation) return alert("Este navegador no soporta geolocalización.");
+      if (!navigator.geolocation) {
+        // Check if the browser supports geolocation.
+        return alert("Este navegador no soporta geolocalización.");
+      }
+      // Get the current geographic position.
       navigator.geolocation.getCurrentPosition(pos => {
-        const { latitude, longitude } = pos.coords;
-        const link = `https://www.google.com/maps?q=${latitude},${longitude}`;
-        const msg = `Hola, he encontrado a ${nombre}. Mi ubicación es: ${link}`;
-        window.open(`https://wa.me/51${tel}?text=${encodeURIComponent(msg)}`, '_blank');
-      }, () => alert("No se pudo obtener la ubicación."));
+        // On successful location retrieval:
+        const { latitude, longitude } = pos.coords; // Extract coordinates.
+        // Create a Google Maps link.
+        const linkMapa = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        // Prepare the message including the map link.
+        const mensajeUbicacion = `Hola, he encontrado a ${nombre}. Mi ubicación es: ${linkMapa}`;
+        // Open WhatsApp in a new tab with the pre-filled message.
+        // NOTE: "+51" prefix is hardcoded here as well.
+        window.open(`https://wa.me/51${tel}?text=${encodeURIComponent(mensajeUbicacion)}`, '_blank');
+      }, () => {
+        // On failure to retrieve location:
+        alert("No se pudo obtener la ubicación.");
+      });
     }
   </script>
 </body>
