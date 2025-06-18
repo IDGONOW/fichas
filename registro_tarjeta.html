@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Crear Tarjeta Profesional - IDGoNow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    label { font-weight: bold; margin-top: 10px; display: block; }
+    input, button, textarea { width: 100%; margin: 10px 0; padding: 10px; }
+    button { background-color: #28a745; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>Crear mi tarjeta profesional</h2>
+
+  <form id="formTarjeta" enctype="multipart/form-data">
+    <input type="hidden" name="tipo_ficha" value="tarjeta" />
+    <label>Nombre</label>
+    <input name="Nombre" required />
+    <label>Apellido</label>
+    <input name="Apellido" required />
+    <label>Empresa</label>
+    <input name="Empresa" />
+    <label>Cargo</label>
+    <input name="Cargo" />
+    <label>Teléfono</label>
+    <input name="Telefono" required />
+    <label>Email</label>
+    <input type="email" name="Email" required />
+    <label>LinkedIn</label>
+    <input type="url" name="Url_linkedin" />
+    <label>Web personal / empresa</label>
+    <input type="url" name="url_web" />
+    <label>Facebook</label>
+    <input type="url" name="Facebook" />
+    <label>Instagram</label>
+    <input type="url" name="Instagram" />
+    <label>Foto de perfil</label>
+    <input type="file" name="Foto_perfil" accept="image/*" />
+    <label>Logo de empresa</label>
+    <input type="file" name="Logo_empresa" accept="image/*" />
+    <button type="submit">Crear tarjeta</button>
+  </form>
+
+  <script>
+    const form = document.getElementById("formTarjeta");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+
+      const response = await fetch("https://idgonow-production.up.railway.app/api/v1/db/data/v1/mjtul7m1klgri2j/tarjetas_presentacion", {
+        method: "POST",
+        headers: {
+          "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
+        },
+        body: formData
+      });
+
+      const result = await response.json();
+      if (result.id) {
+        window.location.href = `ficha_tarjeta.html?id=${result.id}`;
+      } else {
+        alert("Hubo un error al registrar tu tarjeta.");
+        console.error(result);
+      }
+    });
+  </script>
+</body>
+</html>
