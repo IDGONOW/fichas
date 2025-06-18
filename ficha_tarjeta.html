@@ -2,104 +2,94 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Tarjeta Profesional - IDGoNow</title>
+  <title>Crear Tarjeta Profesional - IDGoNow</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-    .card { border: 1px solid #ccc; border-radius: 10px; padding: 20px; box-shadow: 2px 2px 10px #ddd; }
-    .profile { display: flex; align-items: center; gap: 20px; }
-    .profile img { border-radius: 50%; width: 100px; height: 100px; object-fit: cover; }
-    .info h2 { margin: 0; }
-    .info p { margin: 4px 0; }
-    .actions { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
-    .actions a, .actions button {
-      text-decoration: none;
-      background: #28a745;
-      color: white;
-      padding: 10px;
-      text-align: center;
-      border-radius: 5px;
-      border: none;
-      cursor: pointer;
-    }
-    .logo { max-height: 40px; margin-bottom: 10px; }
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    label { font-weight: bold; margin-top: 10px; display: block; }
+    input, button, textarea { width: 100%; margin: 10px 0; padding: 10px; }
+    button { background-color: #28a745; color: white; border: none; cursor: pointer; }
   </style>
 </head>
 <body>
-  <div class="card" id="cardContainer">
-    <div class="profile" id="profileSection"></div>
-    <div class="info" id="infoSection"></div>
-    <div class="actions" id="actionButtons"></div>
-  </div>
+  <h2>Crear mi tarjeta profesional</h2>
+
+  <form id="formTarjeta" enctype="multipart/form-data">
+    <input type="hidden" name="tipo_ficha" value="tarjeta" />
+
+    <label>Nombre</label>
+    <input name="Nombre" required />
+
+    <label>Apellido</label>
+    <input name="Apellido" required />
+
+    <label>Empresa</label>
+    <input name="Empresa" />
+
+    <label>Cargo</label>
+    <input name="Cargo" />
+
+    <label>Teléfono</label>
+    <input name="Telefono" required />
+
+    <label>Email</label>
+    <input type="email" name="Email" required />
+
+    <label>LinkedIn</label>
+    <input type="url" name="Url_linkedin" />
+
+    <label>Web personal / empresa</label>
+    <input type="url" name="url_web" />
+
+    <label>Facebook</label>
+    <input type="url" name="Facebook" />
+
+    <label>Instagram</label>
+    <input type="url" name="Instagram" />
+
+    <label>Foto de perfil</label>
+    <input type="file" name="Foto_perfil" accept="image/*" />
+
+    <label>Logo de empresa</label>
+    <input type="file" name="Logo_empresa" accept="image/*" />
+
+    <button type="submit">Crear tarjeta</button>
+  </form>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
+    const form = document.getElementById("formTarjeta");
 
-    async function cargarFicha() {
-      if (!id) {
-        document.getElementById("cardContainer").innerHTML = "<p>Error: ID no proporcionado.</p>";
-        return;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch("https://idgonow-production.up.railway.app/api/v1/db/data/v1/mjtul7m1klgri2j/tarjetas_presentacion", {
+          method: "POST",
+          headers: {
+            "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
+          },
+          body: formData
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          alert("❌ Error al guardar ficha:\n" + errorText);
+          return;
+        }
+
+        const result = await response.json();
+        if (result.id) {
+          window.location.href = `ficha_tarjeta.html?id=${result.id}`;
+        } else {
+          alert("⚠️ La tarjeta no fue creada correctamente.");
+          console.log(result);
+        }
+      } catch (err) {
+        alert("⚠️ Error inesperado:\n" + err.message);
+        console.error(err);
       }
-
-      const res = await fetch(`https://idgonow-production.up.railway.app/api/v1/db/data/v1/mjtul7m1klgri2j/tarjetas_presentacion/${id}?fields=*,Foto_perfil.*,Logo_empresa.*`, {
-        headers: { "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy" }
-      });
-
-      const data = await res.json();
-      if (!data.Nombre) {
-        document.getElementById("cardContainer").innerHTML = "<p>Ficha no encontrada.</p>";
-        return;
-      }
-
-      const nombreCompleto = `${data.Nombre} ${data.Apellido || ""}`.trim();
-      const foto = data.Foto_perfil?.[0]?.url || "https://via.placeholder.com/100";
-      const logo = data.Logo_empresa?.[0]?.url
-        ? `<img src="${data.Logo_empresa[0].url}" class="logo">`
-        : "";
-
-      document.getElementById("profileSection").innerHTML = `
-        <img src="${foto}">
-        <div>
-          <h2>${nombreCompleto}</h2>
-          <p>${data.Cargo || ""}</p>
-          <p><strong>${data.Empresa || ""}</strong></p>
-          ${logo}
-        </div>
-      `;
-
-      const actionHTML = [];
-
-      if (data.Telefono) actionHTML.push(`<a href="tel:${data.Telefono}">📞 Llamar</a>`);
-      if (data.Email) actionHTML.push(`<a href="mailto:${data.Email}">✉️ Correo</a>`);
-      if (data.Url_linkedin) actionHTML.push(`<a href="${data.Url_linkedin}" target="_blank">🔗 LinkedIn</a>`);
-      if (data.url_web) actionHTML.push(`<a href="${data.url_web}" target="_blank">🌐 Sitio web</a>`);
-      if (data.Facebook) actionHTML.push(`<a href="${data.Facebook}" target="_blank">📘 Facebook</a>`);
-      if (data.Instagram) actionHTML.push(`<a href="${data.Instagram}" target="_blank">📸 Instagram</a>`);
-
-      actionHTML.push(`<a id="descargarVCF">📇 Guardar contacto</a>`);
-      document.getElementById("actionButtons").innerHTML = actionHTML.join("");
-
-      // Generar vCard
-      const vcard = `
-BEGIN:VCARD
-VERSION:3.0
-FN:${nombreCompleto}
-TITLE:${data.Cargo || ""}
-ORG:${data.Empresa || ""}
-TEL;TYPE=WORK:${data.Telefono || ""}
-EMAIL:${data.Email || ""}
-URL:${data.url_web || ""}
-END:VCARD`;
-
-      const blob = new Blob([vcard.trim()], { type: "text/vcard" });
-      const url = URL.createObjectURL(blob);
-      const link = document.getElementById("descargarVCF");
-      link.href = url;
-      link.download = `${nombreCompleto.replace(/\s+/g, "_")}.vcf`;
-    }
-
-    cargarFicha();
+    });
   </script>
 </body>
 </html>
