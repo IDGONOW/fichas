@@ -19,40 +19,28 @@
 
     <label>Nombre</label>
     <input name="Nombre" required />
-
     <label>Apellido</label>
     <input name="Apellido" required />
-
     <label>Empresa</label>
     <input name="Empresa" />
-
     <label>Cargo</label>
     <input name="Cargo" />
-
     <label>Teléfono</label>
     <input name="Telefono" required />
-
     <label>Email</label>
     <input type="email" name="Email" required />
-
     <label>LinkedIn</label>
     <input type="url" name="Url_linkedin" />
-
     <label>Web personal / empresa</label>
     <input type="url" name="url_web" />
-
     <label>Facebook</label>
     <input type="url" name="Facebook" />
-
     <label>Instagram</label>
     <input type="url" name="Instagram" />
-
     <label>Foto de perfil</label>
     <input type="file" name="Foto_perfil" accept="image/*" />
-
     <label>Logo de empresa</label>
     <input type="file" name="Logo_empresa" accept="image/*" />
-
     <button type="submit">Crear tarjeta</button>
   </form>
 
@@ -69,18 +57,14 @@
           body: formData
         });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          alert("❌ Error al guardar ficha:\n" + errorText);
-          return;
-        }
-
         const result = await response.json();
+        console.log("🔍 Resultado del proxy:", result); // 👈 Para diagnóstico
+
         if (result.id) {
           window.location.href = `ficha_tarjeta.html?id=${result.id}`;
         } else {
           alert("⚠️ La tarjeta no fue creada correctamente.");
-          console.log(result);
+          console.log("⚠️ Respuesta sin ID:", result); // 👈 Para ver qué vino mal
         }
       } catch (err) {
         alert("⚠️ Error inesperado:\n" + err.message);
@@ -90,3 +74,4 @@
   </script>
 </body>
 </html>
+
