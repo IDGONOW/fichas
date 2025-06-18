@@ -1,86 +1,90 @@
-const express = require("express");
-const multer = require("multer");
-const fetch = require("node-fetch");
-const cors = require("cors");
-const FormData = require("form-data");
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Crear Tarjeta Profesional - IDGoNow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    label { font-weight: bold; margin-top: 10px; display: block; }
+    input, button, textarea { width: 100%; margin: 10px 0; padding: 10px; }
+    button { background-color: #28a745; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>Crear mi tarjeta profesional</h2>
 
-const app = express();
-const upload = multer();
+  <form id="formTarjeta" enctype="multipart/form-data">
+    <input type="hidden" name="tipo_ficha" value="tarjeta" />
 
-app.use(cors());
-app.use(express.json());
+    <label>Nombre</label>
+    <input name="Nombre" required />
 
-// Crear tarjeta
-app.post("/crear-tarjeta", upload.fields([
-  { name: "Foto_perfil", maxCount: 1 },
-  { name: "Logo_empresa", maxCount: 1 }
-]), async (req, res) => {
-  try {
-    const form = new FormData();
+    <label>Apellido</label>
+    <input name="Apellido" required />
 
-    Object.entries(req.body).forEach(([key, value]) => {
-      form.append(key, value);
-    });
+    <label>Empresa</label>
+    <input name="Empresa" />
 
-    if (req.files?.Foto_perfil?.[0]) {
-      form.append("Foto_perfil", req.files.Foto_perfil[0].buffer, {
-        filename: req.files.Foto_perfil[0].originalname,
-        contentType: req.files.Foto_perfil[0].mimetype
-      });
-    }
+    <label>Cargo</label>
+    <input name="Cargo" />
 
-    if (req.files?.Logo_empresa?.[0]) {
-      form.append("Logo_empresa", req.files.Logo_empresa[0].buffer, {
-        filename: req.files.Logo_empresa[0].originalname,
-        contentType: req.files.Logo_empresa[0].mimetype
-      });
-    }
+    <label>Teléfono</label>
+    <input name="Telefono" required />
 
-    const response = await fetch(
-      "https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/tarjetas_presentacion",
-      {
-        method: "POST",
-        headers: {
-          "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy",
-          ...form.getHeaders(),
-        },
-        body: form,
-      }
-    );
+    <label>Email</label>
+    <input type="email" name="Email" required />
 
-    const result = await response.json();
-    res.status(response.status).json(result);
-  } catch (err) {
-    console.error("❌ Error al crear tarjeta:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
+    <label>LinkedIn</label>
+    <input type="url" name="Url_linkedin" />
 
-// Leer tarjeta
-app.get("/leer-tarjeta", async (req, res) => {
-  const id = req.query.id;
-  if (!id) return res.status(400).json({ error: "ID no proporcionado" });
+    <label>Web personal / empresa</label>
+    <input type="url" name="url_web" />
 
-  try {
-    const response = await fetch(
-      `https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/tarjetas_presentacion/${id}`,
-      {
-        headers: {
-          "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
+    <label>Facebook</label>
+    <input type="url" name="Facebook" />
+
+    <label>Instagram</label>
+    <input type="url" name="Instagram" />
+
+    <label>Foto de perfil</label>
+    <input type="file" name="Foto_perfil" accept="image/*" />
+
+    <label>Logo de empresa</label>
+    <input type="file" name="Logo_empresa" accept="image/*" />
+
+    <button type="submit">Crear tarjeta</button>
+  </form>
+
+  <script>
+    const form = document.getElementById("formTarjeta");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch("https://proxy-idgonow-production.up.railway.app/crear-tarjeta", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json();
+        console.log("🔍 Resultado del proxy:", result);
+
+        const id = result?.id ?? result?.Id ?? null;
+
+        if (typeof id === "number" || (typeof id === "string" && id.trim() !== "")) {
+          window.location.href = `ficha_tarjeta.html?id=${id}`;
+        } else {
+          alert("⚠️ La tarjeta no fue creada correctamente.");
+          console.log("⚠️ Resultado sin ID válido:", result);
         }
+      } catch (err) {
+        alert("⚠️ Error inesperado:\n" + err.message);
+        console.error(err);
       }
-    );
-
-    const result = await response.json();
-    res.status(response.status).json(result);
-  } catch (err) {
-    console.error("❌ Error al leer tarjeta:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Proxy activo en puerto ${PORT}`);
-});
-
+    });
+  </script>
+</body>
+</html>
