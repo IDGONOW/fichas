@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tarjeta Profesional</title>
+  <style>
+    body { font-family: sans-serif; background: #f0f0f0; text-align: center; padding: 2rem; }
+    .card { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    img { width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 3px solid #ccc; margin-bottom: 1rem; }
+    p { margin: 5px 0; }
+    a.btn { margin-top: 10px; display: inline-block; background: #007bff; color: white; padding: 10px; border-radius: 6px; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img id="foto" src="" alt="Foto de perfil" />
+    <p><strong id="nombre"></strong></p>
+    <p id="cargo"></p>
+    <p id="telefono"></p>
+    <p id="email"></p>
+    <a href="#" class="btn" id="vcfBtn" style="display: none;">📇 Guardar contacto</a>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    fetch(`https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/tarjetas_presentacion/${id}`, {
+      headers: {
+        "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("nombre").textContent = `${data.Nombre || ""} ${data.Apellido || ""}`;
+      document.getElementById("cargo").textContent = `${data.Cargo || ""} - ${data.Empresa || ""}`;
+      document.getElementById("telefono").textContent = `📞 ${data.Telefono || ""}`;
+      document.getElementById("email").textContent = `📧 ${data.Email || ""}`;
+
+      if (data.Foto_perfil?.[0]?.url) {
+        document.getElementById("foto").src = data.Foto_perfil[0].url;
+      }
+
+      const vcf = `
+BEGIN:VCARD
+VERSION:3.0
+FN:${data.Nombre || ""} ${data.Apellido || ""}
+ORG:${data.Empresa || ""}
+TITLE:${data.Cargo || ""}
+TEL:${data.Telefono || ""}
+EMAIL:${data.Email || ""}
+END:VCARD`.trim();
+
+      const blob = new Blob([vcf], { type: "text/vcard" });
+      const url = URL.createObjectURL(blob);
+      const btn = document.getElementById("vcfBtn");
+      btn.href = url;
+      btn.download = `${data.Nombre || "contacto"}.vcf`;
+      btn.style.display = "inline-block";
+    });
+  </script>
+</body>
+</html>
+
