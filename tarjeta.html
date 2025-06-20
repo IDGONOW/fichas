@@ -5,40 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tarjeta Profesional</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; text-align: center; }
-    .card { background: white; padding: 20px; border-radius: 12px; max-width: 400px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    img.avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 3px solid #ccc; }
+    body { font-family: sans-serif; background: #f0f0f0; text-align: center; padding: 2rem; }
+    .card { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    img { width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 3px solid #ccc; margin-bottom: 1rem; }
     p { margin: 5px 0; }
-    a.btn { margin-top: 15px; display: inline-block; background: #007bff; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; }
+    a.btn { margin-top: 10px; display: inline-block; background: #007bff; color: white; padding: 10px; border-radius: 6px; text-decoration: none; }
   </style>
 </head>
 <body>
   <div class="card">
-    <img id="foto" class="avatar" src="" alt="Foto de perfil" />
+    <img id="foto" src="" alt="Foto de perfil" />
     <p><strong id="nombre"></strong></p>
-    <p id="cargoEmpresa"></p>
+    <p id="cargo"></p>
     <p id="telefono"></p>
     <p id="email"></p>
-    <a href="#" class="btn" id="vcfBtn" style="display:none;">📇 Guardar contacto</a>
+    <a href="#" class="btn" id="vcfBtn" style="display: none;">📇 Guardar contacto</a>
   </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
-    fetch(`https://proxy-idgonow-production.up.railway.app/leer-tarjeta?id=${id}`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("nombre").textContent = `${data.Nombre || ""} ${data.Apellido || ""}`;
-        document.getElementById("cargoEmpresa").textContent = `${data.Cargo || ""} - ${data.Empresa || ""}`;
-        document.getElementById("telefono").textContent = `📞 ${data.Telefono || ""}`;
-        document.getElementById("email").textContent = `📧 ${data.Email || ""}`;
+    fetch(`https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/tarjetas_presentacion/${id}`, {
+      headers: {
+        "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("nombre").textContent = `${data.Nombre || ""} ${data.Apellido || ""}`;
+      document.getElementById("cargo").textContent = `${data.Cargo || ""} - ${data.Empresa || ""}`;
+      document.getElementById("telefono").textContent = `📞 ${data.Telefono || ""}`;
+      document.getElementById("email").textContent = `📧 ${data.Email || ""}`;
 
-        if (data.Foto_perfil?.[0]?.url) {
-          document.getElementById("foto").src = data.Foto_perfil[0].url;
-        }
+      if (data.Foto_perfil?.[0]?.url) {
+        document.getElementById("foto").src = data.Foto_perfil[0].url;
+      }
 
-        const vcf = `
+      const vcf = `
 BEGIN:VCARD
 VERSION:3.0
 FN:${data.Nombre || ""} ${data.Apellido || ""}
@@ -48,14 +52,15 @@ TEL:${data.Telefono || ""}
 EMAIL:${data.Email || ""}
 END:VCARD`.trim();
 
-        const blob = new Blob([vcf], { type: "text/vcard" });
-        const url = URL.createObjectURL(blob);
-        const btn = document.getElementById("vcfBtn");
-        btn.href = url;
-        btn.download = `${data.Nombre || "contacto"}.vcf`;
-        btn.style.display = "inline-block";
-      });
+      const blob = new Blob([vcf], { type: "text/vcard" });
+      const url = URL.createObjectURL(blob);
+      const btn = document.getElementById("vcfBtn");
+      btn.href = url;
+      btn.download = `${data.Nombre || "contacto"}.vcf`;
+      btn.style.display = "inline-block";
+    });
   </script>
 </body>
 </html>
+
 
