@@ -5,84 +5,56 @@
   <title>Registrar tarjeta profesional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, textarea { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 5px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+
+    .logo img {
+      max-width: 180px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      color: #007bff;
+    }
+
+    .btn {
+      display: block;
+      width: 260px;
+      margin: 2rem auto 0;
+      padding: 1rem;
+      background-color: #28a745;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background-color: #218838;
+    }
   </style>
 </head>
 <body>
-  <h2>Registrar tarjeta profesional</h2>
-  <form id="form" enctype="multipart/form-data">
-    <input type="hidden" name="tipo_ficha" value="tarjeta" />
+  <div class="logo">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo">
+  </div>
 
-    <label>Nombre</label>
-    <input name="Nombre" required />
+  <h1>Registrar Tarjeta Profesional</h1>
+  <p>
+    Completa tu ficha profesional para que otros puedan encontrarte fácilmente. 
+    Esta tarjeta estará disponible mediante NFC o código QR.
+  </p>
 
-    <label>Apellido</label>
-    <input name="Apellido" required />
-
-    <label>Empresa</label>
-    <input name="Empresa" />
-
-    <label>Cargo</label>
-    <input name="Cargo" />
-
-    <label>Teléfono</label>
-    <input name="Telefono" required />
-
-    <label>Email</label>
-    <input name="Email" type="email" required />
-
-    <label>LinkedIn</label>
-    <input name="Url_linkedin" type="url" />
-
-    <label>Web personal / empresa</label>
-    <input name="url_web" type="url" />
-
-    <label>Facebook</label>
-    <input name="Facebook" type="url" />
-
-    <label>Instagram</label>
-    <input name="Instagram" type="url" />
-
-    <label>Foto de perfil</label>
-    <input name="Foto_perfil" type="file" accept="image/*" />
-
-    <label>Logo de empresa</label>
-    <input name="Logo_empresa" type="file" accept="image/*" />
-
-    <button type="submit">Crear tarjeta</button>
-  </form>
-
-  <script>
-    const form = document.getElementById("form");
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-
-      try {
-        const res = await fetch("https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/tarjetas_presentacion", {
-          method: "POST",
-          headers: {
-            "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
-          },
-          body: formData
-        });
-
-        const data = await res.json();
-        console.log("✅ Resultado:", data);
-        const id = data.id || data.Id;
-        if (id) {
-          window.location.href = `ficha_tarjeta.html?id=${id}`;
-        } else {
-          alert("❌ No se pudo crear la tarjeta.");
-        }
-      } catch (err) {
-        alert("❌ Error al enviar:\n" + err.message);
-      }
-    });
-  </script>
+  <a href="https://idgonow.up.railway.app/dashboard/#/nc/form/f9f93e1c-1b7c-494d-9b79-303bdb3153b6" class="btn" target="_blank">
+    📋 Registrar Tarjeta
+  </a>
 </body>
 </html>
+
 
