@@ -5,98 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tarjeta Profesional</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f4f4;
-      padding: 2rem;
-      text-align: center;
-    }
-
-    .card {
-      background: white;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      max-width: 400px;
-      margin: auto;
-    }
-
-    .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid #ddd;
-      margin-bottom: 1rem;
-    }
-
-    .info {
-      margin-bottom: 1rem;
-    }
-
-    .info p {
-      margin: 0.5rem 0;
-      font-size: 16px;
-    }
-
-    a.btn {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.8rem 1.2rem;
-      background: #007bff;
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; text-align: center; }
+    .card { background: white; padding: 20px; border-radius: 12px; max-width: 400px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    img.avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 3px solid #ccc; }
+    p { margin: 5px 0; }
+    a.btn { margin-top: 15px; display: inline-block; background: #007bff; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; }
   </style>
 </head>
 <body>
   <div class="card">
-    <img src="" id="foto" class="avatar" alt="Foto" />
-    <div class="info" id="infoTarjeta"></div>
-    <a href="#" class="btn" id="guardarVCF" style="display:none;">📇 Guardar contacto</a>
+    <img id="foto" class="avatar" src="" alt="Foto de perfil" />
+    <p><strong id="nombre"></strong></p>
+    <p id="cargoEmpresa"></p>
+    <p id="telefono"></p>
+    <p id="email"></p>
+    <a href="#" class="btn" id="vcfBtn" style="display:none;">📇 Guardar contacto</a>
   </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const recordId = params.get("id");
-    const API_URL = `https://idgonow.up.railway.app/api/v2/tables/pg9x94vtxgric6p/records/${recordId}`;
-    const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+    const id = params.get("id");
 
-    fetch(API_URL, {
-      headers: { "xc-token": API_TOKEN }
-    })
-    .then(res => res.json())
-    .then(data => {
-      const row = data.fields || data;
-      document.getElementById("infoTarjeta").innerHTML = `
-        <p><strong>${row.Nombre || ""} ${row.Apellido || ""}</strong></p>
-        <p>${row.Cargo || ""} - ${row.Empresa || ""}</p>
-        <p>📞 ${row.Telefono || ""}</p>
-        <p>📧 ${row.Email || ""}</p>
-      `;
+    fetch(`https://proxy-idgonow-production.up.railway.app/leer-tarjeta?id=${id}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("nombre").textContent = `${data.Nombre || ""} ${data.Apellido || ""}`;
+        document.getElementById("cargoEmpresa").textContent = `${data.Cargo || ""} - ${data.Empresa || ""}`;
+        document.getElementById("telefono").textContent = `📞 ${data.Telefono || ""}`;
+        document.getElementById("email").textContent = `📧 ${data.Email || ""}`;
 
-      if (row.Foto_perfil?.[0]?.path) {
-        document.getElementById("foto").src = `https://idgonow.up.railway.app/${row.Foto_perfil[0].path}`;
-      }
+        if (data.Foto_perfil?.[0]?.url) {
+          document.getElementById("foto").src = data.Foto_perfil[0].url;
+        }
 
-      const vcard = `
+        const vcf = `
 BEGIN:VCARD
 VERSION:3.0
-FN:${row.Nombre || ""} ${row.Apellido || ""}
-TITLE:${row.Cargo || ""}
-ORG:${row.Empresa || ""}
-TEL;TYPE=WORK:${row.Telefono || ""}
-EMAIL:${row.Email || ""}
+FN:${data.Nombre || ""} ${data.Apellido || ""}
+ORG:${data.Empresa || ""}
+TITLE:${data.Cargo || ""}
+TEL:${data.Telefono || ""}
+EMAIL:${data.Email || ""}
 END:VCARD`.trim();
 
-      const blob = new Blob([vcard], { type: "text/vcard" });
-      const url = URL.createObjectURL(blob);
-      const btn = document.getElementById("guardarVCF");
-      btn.href = url;
-      btn.download = `${row.Nombre || "contacto"}.vcf`;
-      btn.style.display = "inline-block";
-    });
+        const blob = new Blob([vcf], { type: "text/vcard" });
+        const url = URL.createObjectURL(blob);
+        const btn = document.getElementById("vcfBtn");
+        btn.href = url;
+        btn.download = `${data.Nombre || "contacto"}.vcf`;
+        btn.style.display = "inline-block";
+      });
   </script>
 </body>
 </html>
