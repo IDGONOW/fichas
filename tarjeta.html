@@ -2,126 +2,59 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IDGoNow | Tarjeta Profesional</title>
+  <title>Tarjeta Profesional - IDGoNow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .container {
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 12px;
-      max-width: 440px;
-      width: 100%;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    }
-
-    .logo img {
-      width: 140px;
-      margin-bottom: 0.5rem;
-    }
-
-    .titulo {
-      text-align: center;
-      font-size: 1.4rem;
-      font-weight: bold;
-      margin-top: 0.2rem;
-      margin-bottom: 1rem;
-    }
-
-    .foto-circular {
-      width: 120px;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 50%;
-      margin: 0 auto 1rem;
-      display: block;
-      border: 4px solid #eee;
-    }
-
-    .info-central, .datos-contacto {
-      background: #f3f3f3;
-      padding: 1rem;
-      text-align: center;
-      border-radius: 10px;
-      margin-bottom: 1rem;
-    }
-
-    .info-central p, .datos-contacto p {
-      margin: 0.3rem 0;
-      font-size: 16px;
-    }
+    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; text-align: center; }
+    .card { background: white; max-width: 400px; margin: auto; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    img.foto { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin: 10px 0; border: 3px solid #ccc; }
+    h2 { margin-top: 0; }
+    p { margin: 8px 0; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" />
-    </div>
-    <div class="titulo" id="titulo">Tarjeta Profesional</div>
-    <img src="" alt="Foto" class="foto-circular" id="foto"/>
-    <div class="info-central" id="infoCentral"></div>
-    <div class="datos-contacto" id="datosContacto"></div>
+  <div class="card">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo" style="width:120px; margin-bottom: 10px;">
+    <h2 id="nombre">Hola, soy</h2>
+    <img id="foto" class="foto" src="" alt="Foto de perfil" />
+    <p id="empresa"></p>
+    <p id="cargo"></p>
+    <p id="telefono"></p>
+    <p id="email"></p>
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const recordId = params.get("id");
-    const API_URL = `https://idgonow.up.railway.app/api/v2/tables/mjtul7m1klgri2j/records/${recordId}`;
-    const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+    const id = new URLSearchParams(window.location.search).get("id");
+    const apiUrl = `https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/tarjetas_presentacion/${id}`;
+    const token = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
 
-    fetch(API_URL, {
-      headers: { "xc-token": API_TOKEN }
+    fetch(apiUrl, {
+      headers: {
+        "accept": "application/json",
+        "xc-token": token
+      }
     })
     .then(res => res.json())
     .then(data => {
-      const row = data.fields || data;
+      document.getElementById("nombre").innerText = `Hola, soy ${data.Nombre || ""} ${data.Apellido || ""}`;
+      document.getElementById("empresa").innerText = data.Empresa ? `Empresa: ${data.Empresa}` : "";
+      document.getElementById("cargo").innerText = data.Cargo ? `Cargo: ${data.Cargo}` : "";
+      document.getElementById("telefono").innerText = data.Telefono ? `📞 ${data.Telefono}` : "";
+      document.getElementById("email").innerText = data.Email ? `📧 ${data.Email}` : "";
 
-      document.getElementById("titulo").innerText = "Hola, soy " + (row["Nombre"] || "");
-
-      const fotoCampo = Object.entries(row).find(([k]) => k.toLowerCase().includes("foto"));
-      let fotoUrl = "";
-      if (fotoCampo) {
-        const val = fotoCampo[1];
-        if (Array.isArray(val) && val[0]?.path) {
-          fotoUrl = `https://idgonow.up.railway.app/${val[0].path}`;
-        } else if (typeof val === "string" && val.startsWith("http")) {
-          fotoUrl = val;
-        }
+      if (Array.isArray(data.Foto_perfil) && data.Foto_perfil.length > 0) {
+        const imgPath = data.Foto_perfil[0].path;
+        const imgUrl = `https://idgonow.up.railway.app${imgPath}`;
+        document.getElementById("foto").src = imgUrl;
+      } else {
+        document.getElementById("foto").style.display = "none";
       }
-      if (fotoUrl) document.getElementById("foto").src = fotoUrl;
-
-      const info = document.getElementById("infoCentral");
-      const contacto = document.getElementById("datosContacto");
-
-      const campos = [
-        ["Empresa", "Empresa"],
-        ["Cargo", "Cargo"],
-        ["url_web", "Web"],
-        ["Url_linkedin", "LinkedIn"],
-        ["Facebook", "Facebook"],
-        ["Instagram", "Instagram"]
-      ];
-
-      const contactoCampos = [
-        ["Nombre", "Nombre"],
-        ["Telefono", "Teléfono"],
-        ["Email", "Correo electrónico"]
-      ];
-
-      campos.forEach(([k, label]) => row[k] && (info.innerHTML += `<p><strong>${label}:</strong> ${row[k]}</p>`));
-      contactoCampos.forEach(([k, label]) => row[k] && (contacto.innerHTML += `<p><strong>${label}:</strong> ${row[k]}</p>`));
+    })
+    .catch(err => {
+      alert("Error al cargar la ficha");
+      console.error(err);
     });
   </script>
 </body>
 </html>
-
 
