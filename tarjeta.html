@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -86,13 +87,14 @@
       font-weight: bold;
       font-size: 1rem;
       text-decoration: none;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.5rem;
     }
 
     .datos-contacto {
       display: flex;
       flex-direction: column;
       gap: 0.9rem;
+      margin-top: 1rem;
     }
 
     .fila-contacto {
@@ -112,6 +114,13 @@
       text-decoration: none;
       word-break: break-word;
     }
+
+    .mensaje-guardar {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -124,14 +133,11 @@
     <div class="nombre" id="nombre"></div>
     <div class="cargo" id="cargo"></div>
     <div class="empresa" id="empresa"></div>
-   <a class="btn-contacto" id="guardarVCF">📇 Guardar contacto</a>
-
-<p style="text-align:center; font-size: 0.9rem; color: #333; margin-top: 0.5rem;">
-  Al pulsar, tu móvil debería abrir la app de contactos para guardar esta tarjeta automáticamente.
-</p>
-
-<div class="datos-contacto" id="datosContacto"></div>
-
+    <a class="btn-contacto" id="guardarVCF">📇 Guardar contacto</a>
+    <p class="mensaje-guardar">
+      Al pulsar, tu teléfono debería abrir la app de contactos para guardar esta tarjeta.
+    </p>
+    <div class="datos-contacto" id="datosContacto"></div>
   </div>
 
   <script>
@@ -171,12 +177,9 @@
       ["Telefono", "Email", "Web Corporativa", "Linkedin", "Facebook", "Instagram"].forEach(key => {
         if (row[key]) {
           const value = row[key];
-          const label = key;
           let link = value;
-
           if (key === "Email") link = `mailto:${value}`;
           else if (!value.startsWith("http")) link = `https://${value}`;
-
           contacto.innerHTML += `
             <div class="fila-contacto">
               <img src="${iconos[key] || ''}" alt="icon">
@@ -202,7 +205,8 @@
         row.Facebook ? `URL:${row.Facebook}` : "",
         row.Instagram ? `URL:${row.Instagram}` : "",
         "END:VCARD"
-      ].filter(Boolean).join("\n");
+      ].filter(Boolean).join("
+");
 
       const blob = new Blob([vcard], { type: "text/vcard" });
       const a = document.createElement("a");
