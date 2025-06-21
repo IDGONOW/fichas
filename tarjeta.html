@@ -24,21 +24,21 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
 
-    .logo, .foto-circular {
-      display: block;
-      margin: 0 auto 1rem;
+    .logo {
       text-align: center;
     }
 
     .logo img {
       width: 140px;
+      margin-bottom: 0.5rem;
     }
 
     .titulo {
       text-align: center;
       font-size: 1.4rem;
       font-weight: bold;
-      margin: 0.5rem 0 1rem;
+      margin-top: 0.2rem;
+      margin-bottom: 1rem;
     }
 
     .foto-circular {
@@ -46,6 +46,8 @@
       height: 120px;
       object-fit: cover;
       border-radius: 50%;
+      margin: 0 auto 1rem;
+      display: block;
       border: 4px solid #eee;
     }
 
@@ -78,15 +80,15 @@
       font-size: 16px;
       cursor: pointer;
       border: none;
-      color: white;
-      background-color: #1a73e8;
     }
+
+    .guardar { background-color: #1a73e8; color: white; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="logo">
-      <img id="logoEmpresa" src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" />
+      <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" id="logoEmpresa"/>
     </div>
     <div class="titulo" id="titulo">Hola</div>
     <img src="" alt="Foto" class="foto-circular" id="foto"/>
@@ -95,7 +97,7 @@
     <div class="datos-contacto" id="datosContacto"></div>
 
     <div class="btns">
-      <button id="guardarVCF">📇 Guardar contacto</button>
+      <button class="guardar" id="guardarVCF">📇 Guardar contacto</button>
     </div>
   </div>
 
@@ -113,41 +115,36 @@
     .then(data => {
       row = data.fields || data;
 
-      const nombreCompleto = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
-      document.getElementById("titulo").innerText = `Hola, soy ${nombreCompleto}`;
+      const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
+      document.getElementById("titulo").innerText = `Hola, soy ${nombre}`;
 
-      // Mostrar foto de perfil
-      if (Array.isArray(row.Foto_perfil) && row.Foto_perfil[0]?.path) {
-        document.getElementById("foto").src = `https://idgonow.up.railway.app${row.Foto_perfil[0].path}`;
+      // Foto perfil
+      if (Array.isArray(row.Foto_perfil) && row.Foto_perfil[0]?.url) {
+        document.getElementById("foto").src = row.Foto_perfil[0].url;
       }
 
-      // Mostrar logo empresa
-      if (Array.isArray(row.Logo_empresa) && row.Logo_empresa[0]?.path) {
-        document.getElementById("logoEmpresa").src = `https://idgonow.up.railway.app${row.Logo_empresa[0].path}`;
+      // Logo empresa
+      if (Array.isArray(row.Logo_empresa) && row.Logo_empresa[0]?.url) {
+        document.getElementById("logoEmpresa").src = row.Logo_empresa[0].url;
       }
 
+      // Info central
       const info = document.getElementById("infoCentral");
       ["Empresa", "Cargo"].forEach(key => {
         if (row[key]) info.innerHTML += `<p><strong>${key}:</strong> ${row[key]}</p>`;
       });
 
+      // Datos contacto
       const contacto = document.getElementById("datosContacto");
-
-      function addLine(titulo, valor, isLink = false) {
-        if (valor) {
-          const contenido = isLink ? `<a href="${valor}" target="_blank">${valor}</a>` : valor;
-          contacto.innerHTML += `<p><strong>${titulo}:</strong> ${contenido}</p>`;
-        }
-      }
-
-      addLine("Telefono", row.Telefono);
-      addLine("Email", `mailto:${row.Email}`, true);
-      addLine("Web", row["Web Corporativa"], true);
-      addLine("LinkedIn", row.Linkedin, true);
-      addLine("Facebook", row.Facebook, true);
-      addLine("Instagram", row.Instagram, true);
+      if (row.Telefono) contacto.innerHTML += `<p><strong>Telefono:</strong> ${row.Telefono}</p>`;
+      if (row.Email) contacto.innerHTML += `<p><strong>Email:</strong> <a href="mailto:${row.Email}">${row.Email}</a></p>`;
+      if (row["Web Corporativa"]) contacto.innerHTML += `<p><strong>Web:</strong> <a href="${row["Web Corporativa"]}" target="_blank">${row["Web Corporativa"]}</a></p>`;
+      if (row.Linkedin) contacto.innerHTML += `<p><strong>LinkedIn:</strong> <a href="${row.Linkedin}" target="_blank">${row.Linkedin}</a></p>`;
+      if (row.Facebook) contacto.innerHTML += `<p><strong>Facebook:</strong> <a href="${row.Facebook}" target="_blank">${row.Facebook}</a></p>`;
+      if (row.Instagram) contacto.innerHTML += `<p><strong>Instagram:</strong> <a href="${row.Instagram}" target="_blank">${row.Instagram}</a></p>`;
     });
 
+    // Guardar contacto
     document.getElementById("guardarVCF").addEventListener("click", () => {
       if (!row) return;
 
@@ -176,6 +173,5 @@
   </script>
 </body>
 </html>
-
 
 
