@@ -83,6 +83,12 @@
     }
 
     .guardar { background-color: #1a73e8; color: white; }
+
+    .clickable a {
+      color: #007bff;
+      text-decoration: underline;
+      word-break: break-all;
+    }
   </style>
 </head>
 <body>
@@ -91,7 +97,7 @@
       <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" id="logoEmpresa"/>
     </div>
     <div class="titulo" id="titulo">Hola</div>
-    <img src="" alt="Foto de perfil" class="foto-circular" id="foto"/>
+    <img src="" alt="Foto" class="foto-circular" id="foto"/>
 
     <div class="info-central" id="infoCentral"></div>
     <div class="datos-contacto" id="datosContacto"></div>
@@ -115,40 +121,39 @@
     .then(data => {
       row = data.fields || data;
 
-      const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
-      document.getElementById("titulo").innerText = `Hola, soy ${nombre}`;
+      const nombreCompleto = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
+      document.getElementById("titulo").innerText = `Hola, soy ${nombreCompleto}`;
 
-      // Foto de perfil
-      let fotoUrl = "";
+      // Foto
       if (Array.isArray(row.Foto_perfil) && row.Foto_perfil[0]?.path) {
-        fotoUrl = `https://idgonow.up.railway.app/${row.Foto_perfil[0].path}`;
-      } else if (typeof row.Foto_perfil === "string" && row.Foto_perfil.startsWith("http")) {
-        fotoUrl = row.Foto_perfil;
+        document.getElementById("foto").src = `https://idgonow.up.railway.app${row.Foto_perfil[0].path}`;
       }
-      if (fotoUrl) document.getElementById("foto").src = fotoUrl;
 
-      // Logo empresa
-      let logoUrl = "";
+      // Logo
       if (Array.isArray(row.Logo_empresa) && row.Logo_empresa[0]?.path) {
-        logoUrl = `https://idgonow.up.railway.app/${row.Logo_empresa[0].path}`;
-      } else if (typeof row.Logo_empresa === "string" && row.Logo_empresa.startsWith("http")) {
-        logoUrl = row.Logo_empresa;
+        document.getElementById("logoEmpresa").src = `https://idgonow.up.railway.app${row.Logo_empresa[0].path}`;
       }
-      if (logoUrl) document.getElementById("logoEmpresa").src = logoUrl;
 
+      // Info central
       const info = document.getElementById("infoCentral");
       ["Empresa", "Cargo"].forEach(key => {
         if (row[key]) info.innerHTML += `<p><strong>${key}:</strong> ${row[key]}</p>`;
       });
 
+      // Datos contacto con links
       const contacto = document.getElementById("datosContacto");
-      ["Telefono", "Email", "Url_linkedin", "url_web", "Facebook", "Instagram"].forEach(key => {
-        if (row[key]) contacto.innerHTML += `<p><strong>${key}:</strong> ${row[key]}</p>`;
-      });
+
+      if (row.Telefono) contacto.innerHTML += `<p><strong>Telefono:</strong> ${row.Telefono}</p>`;
+      if (row.Email) contacto.innerHTML += `<p class="clickable"><strong>Email:</strong> <a href="mailto:${row.Email}">${row.Email}</a></p>`;
+      if (row["Web Corporativa"]) contacto.innerHTML += `<p class="clickable"><strong>Web:</strong> <a href="${row["Web Corporativa"]}" target="_blank">${row["Web Corporativa"]}</a></p>`;
+      if (row.Linkedin) contacto.innerHTML += `<p class="clickable"><strong>LinkedIn:</strong> <a href="${row.Linkedin}" target="_blank">${row.Linkedin}</a></p>`;
+      if (row.Facebook) contacto.innerHTML += `<p class="clickable"><strong>Facebook:</strong> <a href="${row.Facebook}" target="_blank">${row.Facebook}</a></p>`;
+      if (row.Instagram) contacto.innerHTML += `<p class="clickable"><strong>Instagram:</strong> <a href="${row.Instagram}" target="_blank">${row.Instagram}</a></p>`;
     });
 
     document.getElementById("guardarVCF").addEventListener("click", () => {
       if (!row) return;
+
       const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
       const vcard = [
         "BEGIN:VCARD",
@@ -158,8 +163,8 @@
         row.Cargo ? `TITLE:${row.Cargo}` : "",
         row.Telefono ? `TEL;TYPE=CELL:${row.Telefono}` : "",
         row.Email ? `EMAIL:${row.Email}` : "",
-        row.url_web ? `URL:${row.url_web}` : "",
-        row.Url_linkedin ? `URL:${row.Url_linkedin}` : "",
+        row["Web Corporativa"] ? `URL:${row["Web Corporativa"]}` : "",
+        row.Linkedin ? `URL:${row.Linkedin}` : "",
         row.Facebook ? `URL:${row.Facebook}` : "",
         row.Instagram ? `URL:${row.Instagram}` : "",
         "END:VCARD"
