@@ -71,7 +71,7 @@
       margin-top: 1rem;
     }
 
-    .btns a, .btns button {
+    .btns button {
       text-decoration: none;
       text-align: center;
       padding: 0.9rem;
@@ -80,14 +80,13 @@
       font-size: 16px;
       cursor: pointer;
       border: none;
+      background-color: #1a73e8;
+      color: white;
     }
 
-    .guardar { background-color: #1a73e8; color: white; }
-
-    .clickable a {
-      color: #007bff;
-      text-decoration: underline;
-      word-break: break-all;
+    a {
+      color: #1a0dab;
+      text-decoration: none;
     }
   </style>
 </head>
@@ -103,7 +102,7 @@
     <div class="datos-contacto" id="datosContacto"></div>
 
     <div class="btns">
-      <button class="guardar" id="guardarVCF">📇 Guardar contacto</button>
+      <button id="guardarVCF">📇 Guardar contacto</button>
     </div>
   </div>
 
@@ -121,34 +120,37 @@
     .then(data => {
       row = data.fields || data;
 
-      const nombreCompleto = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
-      document.getElementById("titulo").innerText = `Hola, soy ${nombreCompleto}`;
+      const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
+      document.getElementById("titulo").innerText = `Hola, soy ${nombre}`;
 
-      // Foto
       if (Array.isArray(row.Foto_perfil) && row.Foto_perfil[0]?.path) {
-        document.getElementById("foto").src = `https://idgonow.up.railway.app${row.Foto_perfil[0].path}`;
+        document.getElementById("foto").src = `https://idgonow.up.railway.app/download/${row.Foto_perfil[0].path}`;
       }
 
-      // Logo
       if (Array.isArray(row.Logo_empresa) && row.Logo_empresa[0]?.path) {
-        document.getElementById("logoEmpresa").src = `https://idgonow.up.railway.app${row.Logo_empresa[0].path}`;
+        document.getElementById("logoEmpresa").src = `https://idgonow.up.railway.app/download/${row.Logo_empresa[0].path}`;
       }
 
-      // Info central
       const info = document.getElementById("infoCentral");
       ["Empresa", "Cargo"].forEach(key => {
         if (row[key]) info.innerHTML += `<p><strong>${key}:</strong> ${row[key]}</p>`;
       });
 
-      // Datos contacto con links
       const contacto = document.getElementById("datosContacto");
+      const campos = {
+        "Telefono": row.Telefono,
+        "Email": row.Email ? `<a href="mailto:${row.Email}">${row.Email}</a>` : "",
+        "Web": row["Web Corporativa"] ? `<a href="${row["Web Corporativa"]}" target="_blank">${row["Web Corporativa"]}</a>` : "",
+        "LinkedIn": row.Linkedin ? `<a href="${row.Linkedin}" target="_blank">${row.Linkedin}</a>` : "",
+        "Facebook": row.Facebook ? `<a href="${row.Facebook}" target="_blank">${row.Facebook}</a>` : "",
+        "Instagram": row.Instagram ? `<a href="${row.Instagram}" target="_blank">${row.Instagram}</a>` : ""
+      };
 
-      if (row.Telefono) contacto.innerHTML += `<p><strong>Telefono:</strong> ${row.Telefono}</p>`;
-      if (row.Email) contacto.innerHTML += `<p class="clickable"><strong>Email:</strong> <a href="mailto:${row.Email}">${row.Email}</a></p>`;
-      if (row["Web Corporativa"]) contacto.innerHTML += `<p class="clickable"><strong>Web:</strong> <a href="${row["Web Corporativa"]}" target="_blank">${row["Web Corporativa"]}</a></p>`;
-      if (row.Linkedin) contacto.innerHTML += `<p class="clickable"><strong>LinkedIn:</strong> <a href="${row.Linkedin}" target="_blank">${row.Linkedin}</a></p>`;
-      if (row.Facebook) contacto.innerHTML += `<p class="clickable"><strong>Facebook:</strong> <a href="${row.Facebook}" target="_blank">${row.Facebook}</a></p>`;
-      if (row.Instagram) contacto.innerHTML += `<p class="clickable"><strong>Instagram:</strong> <a href="${row.Instagram}" target="_blank">${row.Instagram}</a></p>`;
+      for (const [label, valor] of Object.entries(campos)) {
+        if (valor) {
+          contacto.innerHTML += `<p><strong>${label}:</strong> ${valor}</p>`;
+        }
+      }
     });
 
     document.getElementById("guardarVCF").addEventListener("click", () => {
@@ -179,4 +181,5 @@
   </script>
 </body>
 </html>
+
 
