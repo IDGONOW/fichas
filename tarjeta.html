@@ -6,52 +6,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; text-align: center; }
-    .card { background: white; max-width: 400px; margin: auto; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    img.foto { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin: 10px 0; border: 3px solid #ccc; }
-    h2 { margin-top: 0; }
-    p { margin: 8px 0; }
+    .card {
+      background: white;
+      max-width: 420px;
+      margin: auto;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    img.foto {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 10px auto;
+      border: 3px solid #ccc;
+      display: block;
+    }
+    img.logo {
+      width: 100px;
+      height: auto;
+      margin-bottom: 12px;
+    }
+    h2 { margin: 10px 0; font-size: 20px; }
+    p { margin: 6px 0; font-size: 15px; }
+    .redes a {
+      margin: 0 6px;
+      text-decoration: none;
+      color: #007bff;
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo" style="width:120px; margin-bottom: 10px;">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" class="logo" />
     <h2 id="nombre">Hola, soy</h2>
     <img id="foto" class="foto" src="" alt="Foto de perfil" />
-    <p id="empresa"></p>
-    <p id="cargo"></p>
-    <p id="telefono"></p>
-    <p id="email"></p>
+
+    <div id="info"></div>
+    <div class="redes" id="redes"></div>
   </div>
 
   <script>
     const id = new URLSearchParams(window.location.search).get("id");
-    const apiUrl = `https://idgonow.up.railway.app/api/v1/db/data/v1/pg9x94vtxgric6p/tarjetas_presentacion/${id}`;
-    const token = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+    const API_URL = `https://idgonow.up.railway.app/api/v2/tables/mjtul7m1klgri2j/records/${id}`;
+    const TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
 
-    fetch(apiUrl, {
-      headers: {
-        "accept": "application/json",
-        "xc-token": token
-      }
+    fetch(API_URL, {
+      headers: { "xc-token": TOKEN }
     })
     .then(res => res.json())
     .then(data => {
-      document.getElementById("nombre").innerText = `Hola, soy ${data.Nombre || ""} ${data.Apellido || ""}`;
-      document.getElementById("empresa").innerText = data.Empresa ? `Empresa: ${data.Empresa}` : "";
-      document.getElementById("cargo").innerText = data.Cargo ? `Cargo: ${data.Cargo}` : "";
-      document.getElementById("telefono").innerText = data.Telefono ? `📞 ${data.Telefono}` : "";
-      document.getElementById("email").innerText = data.Email ? `📧 ${data.Email}` : "";
+      const row = data.fields;
+      const nombre = row.Nombre || "";
+      const apellido = row.Apellido || "";
+      document.getElementById("nombre").innerText = `Hola, soy ${nombre} ${apellido}`.trim();
 
-      if (Array.isArray(data.Foto_perfil) && data.Foto_perfil.length > 0) {
-        const imgPath = data.Foto_perfil[0].path;
-        const imgUrl = `https://idgonow.up.railway.app${imgPath}`;
+      const info = document.getElementById("info");
+      const redes = document.getElementById("redes");
+
+      const campos = {
+        Empresa: "🏢 Empresa",
+        Cargo: "💼 Cargo",
+        Telefono: "📞 Teléfono",
+        Email: "📧 Email",
+        url_web: "🌐 Web",
+        Url_linkedin: "🔗 LinkedIn",
+        Facebook: "📘 Facebook",
+        Instagram: "📸 Instagram"
+      };
+
+      Object.entries(campos).forEach(([key, label]) => {
+        if (row[key]) {
+          if (key.startsWith("url") || key === "Facebook" || key === "Instagram" || key === "Url_linkedin") {
+            redes.innerHTML += `<a href="${row[key]}" target="_blank">${label}</a>`;
+          } else {
+            info.innerHTML += `<p><strong>${label}:</strong> ${row[key]}</p>`;
+          }
+        }
+      });
+
+      if (Array.isArray(row.Foto_perfil) && row.Foto_perfil.length > 0 && row.Foto_perfil[0].path) {
+        const imgUrl = `https://idgonow.up.railway.app${row.Foto_perfil[0].path}`;
         document.getElementById("foto").src = imgUrl;
       } else {
         document.getElementById("foto").style.display = "none";
       }
+
+      if (Array.isArray(row.Logo_empresa) && row.Logo_empresa.length > 0 && row.Logo_empresa[0].path) {
+        const logoUrl = `https://idgonow.up.railway.app${row.Logo_empresa[0].path}`;
+        document.querySelector(".logo").src = logoUrl;
+      }
     })
     .catch(err => {
-      alert("Error al cargar la ficha");
+      alert("❌ Error al cargar los datos.");
       console.error(err);
     });
   </script>
