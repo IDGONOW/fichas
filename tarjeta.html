@@ -5,7 +5,12 @@
   <title>Tarjeta Profesional - IDGoNow</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; text-align: center; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+      text-align: center;
+    }
     .card {
       background: white;
       max-width: 420px;
@@ -35,74 +40,122 @@
       text-decoration: none;
       color: #007bff;
     }
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" class="logo" />
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" class="logo" id="logo_empresa">
     <h2 id="nombre">Hola, soy</h2>
     <img id="foto" class="foto" src="" alt="Foto de perfil" />
-
     <div id="info"></div>
     <div class="redes" id="redes"></div>
+    <button id="guardarContacto">Guardar contacto</button>
   </div>
 
   <script>
     const id = new URLSearchParams(window.location.search).get("id");
     const API_URL = `https://idgonow.up.railway.app/api/v2/tables/mjtul7m1klgri2j/records/${id}`;
-    const TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
 
-    fetch(API_URL, {
-      headers: { "xc-token": TOKEN }
-    })
-    .then(res => res.json())
-    .then(data => {
-      const row = data.fields;
-      const nombre = row.Nombre || "";
-      const apellido = row.Apellido || "";
-      document.getElementById("nombre").innerText = `Hola, soy ${nombre} ${apellido}`.trim();
+    let row = {};
 
-      const info = document.getElementById("info");
-      const redes = document.getElementById("redes");
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => {
+        row = data.fields;
+        const nombre = row.Nombre || "";
+        const apellido = row.Apellido || "";
+        document.getElementById("nombre").innerText = `Hola, soy ${nombre} ${apellido}`.trim();
 
-      const campos = {
-        Empresa: "🏢 Empresa",
-        Cargo: "💼 Cargo",
-        Telefono: "📞 Teléfono",
-        Email: "📧 Email",
-        url_web: "🌐 Web",
-        Url_linkedin: "🔗 LinkedIn",
-        Facebook: "📘 Facebook",
-        Instagram: "📸 Instagram"
-      };
+        const info = document.getElementById("info");
+        const redes = document.getElementById("redes");
 
-      Object.entries(campos).forEach(([key, label]) => {
-        if (row[key]) {
-          if (key.startsWith("url") || key === "Facebook" || key === "Instagram" || key === "Url_linkedin") {
-            redes.innerHTML += `<a href="${row[key]}" target="_blank">${label}</a>`;
-          } else {
+        const campos = {
+          Empresa: "🏢 Empresa",
+          Cargo: "💼 Cargo",
+          Telefono: "📞 Teléfono",
+          Email: "📧 Email"
+        };
+
+        Object.entries(campos).forEach(([key, label]) => {
+          if (row[key]) {
             info.innerHTML += `<p><strong>${label}:</strong> ${row[key]}</p>`;
           }
+        });
+
+        const enlaces = {
+          url_web: "🌐 Web",
+          Url_linkedin: "🔗 LinkedIn",
+          Facebook: "📘 Facebook",
+          Instagram: "📸 Instagram"
+        };
+
+        Object.entries(enlaces).forEach(([key, label]) => {
+          if (row[key]) {
+            redes.innerHTML += `<a href="${row[key]}" target="_blank">${label}</a>`;
+          }
+        });
+
+        if (Array.isArray(row.Foto_perfil) && row.Foto_perfil.length > 0 && row.Foto_perfil[0].path) {
+          document.getElementById("foto").src = `https://idgonow.up.railway.app${row.Foto_perfil[0].path}`;
+        } else {
+          document.getElementById("foto").style.display = "none";
         }
+
+        if (Array.isArray(row.Logo_empresa) && row.Logo_empresa.length > 0 && row.Logo_empresa[0].path) {
+          document.getElementById("logo_empresa").src = `https://idgonow.up.railway.app${row.Logo_empresa[0].path}`;
+        }
+      })
+      .catch(err => {
+        alert("❌ Error al cargar los datos.");
+        console.error(err);
       });
 
-      if (Array.isArray(row.Foto_perfil) && row.Foto_perfil.length > 0 && row.Foto_perfil[0].path) {
-        const imgUrl = `https://idgonow.up.railway.app${row.Foto_perfil[0].path}`;
-        document.getElementById("foto").src = imgUrl;
-      } else {
-        document.getElementById("foto").style.display = "none";
-      }
+    document.getElementById("guardarContacto").addEventListener("click", () => {
+      if (!row) return;
 
-      if (Array.isArray(row.Logo_empresa) && row.Logo_empresa.length > 0 && row.Logo_empresa[0].path) {
-        const logoUrl = `https://idgonow.up.railway.app${row.Logo_empresa[0].path}`;
-        document.querySelector(".logo").src = logoUrl;
-      }
-    })
-    .catch(err => {
-      alert("❌ Error al cargar los datos.");
-      console.error(err);
+      const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
+      const empresa = row.Empresa || "";
+      const cargo = row.Cargo || "";
+      const telefono = row.Telefono || "";
+      const email = row.Email || "";
+      const web = row.url_web || "";
+      const linkedin = row.Url_linkedin || "";
+      const facebook = row.Facebook || "";
+      const instagram = row.Instagram || "";
+
+      const vcard = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        `FN:${nombre}`,
+        empresa ? `ORG:${empresa}` : "",
+        cargo ? `TITLE:${cargo}` : "",
+        telefono ? `TEL;TYPE=CELL:${telefono}` : "",
+        email ? `EMAIL:${email}` : "",
+        web ? `URL:${web}` : "",
+        linkedin ? `URL:${linkedin}` : "",
+        facebook ? `URL:${facebook}` : "",
+        instagram ? `URL:${instagram}` : "",
+        "END:VCARD"
+      ].filter(line => line).join("\n");
+
+      const blob = new Blob([vcard], { type: "text/vcard" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${nombre.replace(" ", "_")}_IDGoNow.vcf`;
+      a.click();
     });
   </script>
 </body>
 </html>
+
 
