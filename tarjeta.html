@@ -54,7 +54,7 @@
     .info-central, .datos-contacto {
       background: #f3f3f3;
       padding: 1rem;
-      text-align: left;
+      text-align: center;
       border-radius: 10px;
       margin-bottom: 1.2rem;
     }
@@ -64,6 +64,11 @@
       font-size: 16px;
     }
 
+    .datos-contacto a {
+      color: #1a0dab;
+      text-decoration: none;
+    }
+
     .btns {
       display: flex;
       flex-direction: column;
@@ -71,8 +76,7 @@
       margin-top: 1rem;
     }
 
-    .btns a, .btns button {
-      text-decoration: none;
+    .btns button {
       text-align: center;
       padding: 0.9rem;
       border-radius: 8px;
@@ -80,9 +84,9 @@
       font-size: 16px;
       cursor: pointer;
       border: none;
+      background-color: #1a73e8;
+      color: white;
     }
-
-    .guardar { background-color: #1a73e8; color: white; }
   </style>
 </head>
 <body>
@@ -91,7 +95,7 @@
       <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" id="logoEmpresa"/>
     </div>
     <div class="titulo" id="titulo">Hola</div>
-    <img src="" alt="Foto" class="foto-circular" id="foto"/>
+    <img src="" alt="Foto de perfil" class="foto-circular" id="foto"/>
 
     <div class="info-central" id="infoCentral"></div>
     <div class="datos-contacto" id="datosContacto"></div>
@@ -105,7 +109,6 @@
     const id = new URLSearchParams(window.location.search).get("id");
     const API_URL = `https://idgonow.up.railway.app/api/v2/tables/mjtul7m1klgri2j/records/${id}`;
     const TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
-
     let row = {};
 
     fetch(API_URL, {
@@ -118,24 +121,20 @@
       const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
       document.getElementById("titulo").innerText = `Hola, soy ${nombre}`;
 
-      // Foto perfil
-      if (Array.isArray(row.Foto_perfil) && row.Foto_perfil[0]?.url) {
-        document.getElementById("foto").src = row.Foto_perfil[0].url;
-      }
+      // Foto de perfil
+      const foto = row.Foto_perfil?.[0]?.path || "";
+      if (foto) document.getElementById("foto").src = `https://idgonow.up.railway.app/${foto}`;
 
       // Logo empresa
-      if (Array.isArray(row.Logo_empresa) && row.Logo_empresa[0]?.url) {
-        document.getElementById("logoEmpresa").src = row.Logo_empresa[0].url;
-      }
+      const logo = row.Logo_empresa?.[0]?.path || "";
+      if (logo) document.getElementById("logoEmpresa").src = `https://idgonow.up.railway.app/${logo}`;
 
-      // Info central
       const info = document.getElementById("infoCentral");
-      ["Empresa", "Cargo"].forEach(key => {
-        if (row[key]) info.innerHTML += `<p><strong>${key}:</strong> ${row[key]}</p>`;
-      });
+      if (row.Empresa) info.innerHTML += `<p><strong>Empresa:</strong> ${row.Empresa}</p>`;
+      if (row.Cargo) info.innerHTML += `<p><strong>Cargo:</strong> ${row.Cargo}</p>`;
 
-      // Datos contacto
       const contacto = document.getElementById("datosContacto");
+
       if (row.Telefono) contacto.innerHTML += `<p><strong>Telefono:</strong> ${row.Telefono}</p>`;
       if (row.Email) contacto.innerHTML += `<p><strong>Email:</strong> <a href="mailto:${row.Email}">${row.Email}</a></p>`;
       if (row["Web Corporativa"]) contacto.innerHTML += `<p><strong>Web:</strong> <a href="${row["Web Corporativa"]}" target="_blank">${row["Web Corporativa"]}</a></p>`;
@@ -144,10 +143,8 @@
       if (row.Instagram) contacto.innerHTML += `<p><strong>Instagram:</strong> <a href="${row.Instagram}" target="_blank">${row.Instagram}</a></p>`;
     });
 
-    // Guardar contacto
     document.getElementById("guardarVCF").addEventListener("click", () => {
       if (!row) return;
-
       const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
       const vcard = [
         "BEGIN:VCARD",
@@ -173,5 +170,3 @@
   </script>
 </body>
 </html>
-
-
