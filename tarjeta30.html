@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IDGoNow | Tarjeta Profesional</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #dbeeff;
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 20px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      position: relative;
+    }
+
+    .idgonow-logo {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 48px;
+    }
+
+    .foto-perfil {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid white;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .logo-empresa {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      position: absolute;
+      bottom: -12px;
+      right: 50%;
+      transform: translateX(50%);
+      background: white;
+      border: 2px solid #ccc;
+    }
+
+    .nombre {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin: 0.5rem 0 0;
+    }
+
+    .cargo {
+      text-align: center;
+      color: #555;
+      margin-top: 0.2rem;
+    }
+
+    .empresa {
+      text-align: center;
+      color: #555;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .btn-contacto {
+      display: block;
+      width: 100%;
+      text-align: center;
+      background: #0866c6;
+      color: white;
+      padding: 0.9rem;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1rem;
+      text-decoration: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .datos-contacto {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .fila-contacto {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      justify-content: flex-start;
+    }
+
+    .fila-contacto img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .fila-contacto a {
+      color: #0645ad;
+      text-decoration: none;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://i.imgur.com/r6g9Rud.png" class="idgonow-logo" alt="Logo IDGoNow" />
+    <div style="position: relative;">
+      <img src="" alt="Foto de perfil" class="foto-perfil" id="fotoPerfil">
+      <img src="" alt="Logo Empresa" class="logo-empresa" id="logoEmpresa">
+    </div>
+    <div class="nombre" id="nombre"></div>
+    <div class="cargo" id="cargo"></div>
+    <div class="empresa" id="empresa"></div>
+    <a class="btn-contacto" id="guardarVCF">📇 Guardar contacto</a>
+    <div class="datos-contacto" id="datosContacto"></div>
+  </div>
+
+  <script>
+    const id = new URLSearchParams(window.location.search).get("id");
+    const API_URL = https://idgonow.up.railway.app/api/v2/tables/mjtul7m1klgri2j/records/${id};
+    const TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+    let row = {};
+
+    fetch(API_URL, {
+      headers: { "xc-token": TOKEN }
+    })
+    .then(res => res.json())
+    .then(data => {
+      row = data.fields || data;
+      const nombre = ${row.Nombre || ""} ${row.Apellido || ""}.trim();
+      document.getElementById("nombre").textContent = nombre;
+      document.getElementById("cargo").textContent = row.Cargo || "";
+      document.getElementById("empresa").textContent = row.Empresa || "";
+
+      if (Array.isArray(row.Foto_perfil) && row.Foto_perfil[0]?.path) {
+        document.getElementById("fotoPerfil").src = https://idgonow.up.railway.app/${row.Foto_perfil[0].path};
+      }
+      if (Array.isArray(row.Logo_empresa) && row.Logo_empresa[0]?.path) {
+        document.getElementById("logoEmpresa").src = https://idgonow.up.railway.app/${row.Logo_empresa[0].path};
+      }
+
+      const contacto = document.getElementById("datosContacto");
+      const iconos = {
+        Telefono: "https://cdn-icons-png.flaticon.com/512/597/597177.png",
+        Email: "https://cdn-icons-png.flaticon.com/512/542/542638.png",
+        'Web Corporativa': "https://cdn-icons-png.flaticon.com/512/841/841364.png",
+        Linkedin: "https://cdn-icons-png.flaticon.com/512/145/145807.png",
+        Facebook: "https://cdn-icons-png.flaticon.com/512/733/733547.png",
+        Instagram: "https://cdn-icons-png.flaticon.com/512/733/733558.png"
+      };
+
+      ["Telefono", "Email", "Web Corporativa", "Linkedin", "Facebook", "Instagram"].forEach(key => {
+        if (row[key]) {
+          const value = row[key];
+          const label = key;
+          let link = value;
+
+          if (key === "Email") link = mailto:${value};
+          else if (!value.startsWith("http")) link = https://${value};
+
+          contacto.innerHTML += 
+            <div class="fila-contacto">
+              <img src="${iconos[key] || ''}" alt="icon">
+              <a href="${link}" target="_blank">${value}</a>
+            </div>;
+        }
+      });
+    });
+
+    document.getElementById("guardarVCF").addEventListener("click", () => {
+      if (!row) return;
+      const nombre = ${row.Nombre || ""} ${row.Apellido || ""}.trim();
+      const vcard = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        FN:${nombre},
+        row.Empresa ? ORG:${row.Empresa} : "",
+        row.Cargo ? TITLE:${row.Cargo} : "",
+        row.Telefono ? TEL;TYPE=CELL:${row.Telefono} : "",
+        row.Email ? EMAIL:${row.Email} : "",
+        row["Web Corporativa"] ? URL:${row["Web Corporativa"]} : "",
+        row.Linkedin ? URL:${row.Linkedin} : "",
+        row.Facebook ? URL:${row.Facebook} : "",
+        row.Instagram ? URL:${row.Instagram} : "",
+        "END:VCARD"
+      ].filter(Boolean).join("\n");
+
+      const blob = new Blob([vcard], { type: "text/vcard" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = ${nombre.replace(/\s+/g, "_")}_IDGoNow.vcf;
+      a.click();
+    });
+  </script>
+</body>
+</html>
