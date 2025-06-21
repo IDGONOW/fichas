@@ -1,202 +1,216 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>IDGoNow | Tarjeta Profesional</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      background: #e6f0ff;
       font-family: 'Segoe UI', sans-serif;
+      background: #eaf1fb;
+      margin: 0;
+      padding: 1rem;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      min-height: 100vh;
     }
-    .card {
-      position: relative;
+
+    .container {
       background: #fff;
+      padding: 1.5rem;
       border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-      width: 360px;
-      padding: 32px 24px 24px;
-      text-align: center;
+      max-width: 460px;
+      width: 100%;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+      position: relative;
     }
-    /* Logo IDGoNow en esquina */
+
     .logo-idgonow {
       position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 40px;
-      opacity: 0.8;
+      top: 10px;
+      right: 10px;
+      width: 50px;
     }
-    .profile-photo {
-      width: 128px;
-      height: 128px;
+
+    .foto-circular {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
       border-radius: 50%;
+      display: block;
+      margin: 0 auto 1rem;
       border: 4px solid #fff;
-      object-fit: cover;
-      margin: 0 auto;
-      margin-top: 16px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.15);
     }
-    .company-logo {
+
+    .logo-empresa {
       position: absolute;
-      width: 48px;
-      height: 48px;
+      bottom: -10px;
+      right: -10px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      object-fit: cover;
-      bottom: 32px;
-      right: 24px;
-      border: 3px solid #fff;
       background: #fff;
+      border: 2px solid #ccc;
     }
-    .name {
-      font-size: 1.4rem;
+
+    .titulo {
+      text-align: center;
+      font-size: 1.3rem;
       font-weight: bold;
-      margin-top: 16px;
+      margin: 0.3rem 0;
     }
-    .position {
-      font-size: 1rem;
+
+    .subinfo {
+      text-align: center;
       color: #555;
-      margin-top: 4px;
-      margin-bottom: 20px;
+      font-size: 15px;
+      margin-bottom: 1rem;
     }
-    .info-block, .contacts {
-      text-align: left;
-      margin-bottom: 16px;
-    }
-    .contact-line {
+
+    .info-icono {
       display: flex;
       align-items: center;
-      margin: 8px 0;
-      font-size: 0.95rem;
+      margin-bottom: 0.7rem;
+      gap: 10px;
+      font-size: 15px;
+      color: #333;
     }
-    .contact-line img {
+
+    .info-icono img {
       width: 20px;
       height: 20px;
-      margin-right: 12px;
-      opacity: 0.8;
     }
-    .contact-line a {
-      color: #0561b3;
+
+    .info-icono a {
+      color: #1a73e8;
       text-decoration: none;
+      word-break: break-word;
     }
-    .separator {
-      height: 1px;
-      background: #ddd;
-      margin: 16px 0;
-    }
-    .btn-save {
+
+    .guardar-btn {
+      margin-top: 1.5rem;
       width: 100%;
-      background: #0561b3;
-      color: #fff;
-      padding: 12px;
-      font-size: 1rem;
+      padding: 1rem;
+      font-size: 16px;
       font-weight: bold;
+      background: #0d6efd;
+      color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow" class="logo-idgonow">
-    <img id="foto" src="" alt="Foto de perfil" class="profile-photo" loading="lazy">
-    <img id="logoEmpresa" src="" alt="Logo empresa" class="company-logo" loading="lazy">
-    <div class="name" id="titulo">Hola, soy</div>
-    <div class="position" id="position">Cargo • Empresa</div>
+  <div class="container">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" class="logo-idgonow" id="logoIDGoNow">
+    <img src="" alt="Foto de perfil" class="foto-circular" id="foto">
+    <h2 class="titulo" id="titulo">Hola</h2>
+    <p class="subinfo" id="cargoEmpresa"></p>
 
-    <div class="separator"></div>
+    <div id="contacto">
+      <!-- datos dinámicos aquí -->
+    </div>
 
-    <div class="contacts" id="contacts"></div>
-
-    <button class="btn-save" id="guardarVCF">Guardar contacto</button>
+    <button class="guardar-btn" id="guardarVCF">📇 Guardar contacto</button>
   </div>
 
   <script>
-    const params = new URLSearchParams(location.search);
-    const row = {};
-    const id = params.get("id");
-    const API = `https://idgonow.up.railway.app/api/v2/tables/mjtul7m1klgri2j/records/${id}`;
+    const id = new URLSearchParams(window.location.search).get("id");
+    const API_URL = `https://idgonow.up.railway.app/api/v2/tables/mjtul7m1klgri2j/records/${id}`;
     const TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
 
-    fetch(API, { headers: { 'xc-token': TOKEN } })
-    .then(r => r.json())
+    let row = {};
+
+    const iconos = {
+      Telefono: "https://cdn-icons-png.flaticon.com/512/455/455705.png",
+      Email: "https://cdn-icons-png.flaticon.com/512/561/561127.png",
+      Web: "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+      Linkedin: "https://cdn-icons-png.flaticon.com/512/145/145807.png",
+      Facebook: "https://cdn-icons-png.flaticon.com/512/124/124010.png",
+      Instagram: "https://cdn-icons-png.flaticon.com/512/2111/2111463.png"
+    };
+
+    fetch(API_URL, {
+      headers: { "xc-token": TOKEN }
+    })
+    .then(res => res.json())
     .then(data => {
-      const r = data.fields || data;
-      // Nombre y cargo
-      row.Nombre = r.Nombre || "";
-      row.Apellido = r.Apellido || "";
-      row.Cargo = r.Cargo || "";
-      row.Empresa = r.Empresa || "";
-      row.Telefono = r.Telefono || "";
-      row.Email = r.Email || "";
-      row.Web = r["Web Corporativa"] || "";
-      row.Linkedin = r.Linkedin || "";
-      row.Facebook = r.Facebook || "";
-      row.Instagram = r.Instagram || "";
-      // Fotos
-      const fp = r.Foto_perfil?.[0]?.url || r.Foto_perfil?.[0]?.path;
-      const le = r.Logo_empresa?.[0]?.url || r.Logo_empresa?.[0]?.path;
-      if (fp) document.getElementById("foto").src = fp;
-      if (le) document.getElementById("logoEmpresa").src = le;
+      row = data.fields || data;
 
-      document.getElementById("titulo").innerText = `Hola, soy ${row.Nombre} ${row.Apellido}`;
-      document.getElementById("position").innerText = `${row.Cargo}${row.Cargo && row.Empresa ? ' • ' : ''}${row.Empresa}`;
+      const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
+      document.getElementById("titulo").innerText = `Hola, soy ${nombre}`;
+      document.getElementById("cargoEmpresa").innerText = `${row.Cargo || ""} • ${row.Empresa || ""}`;
 
-      const contacts = document.getElementById("contacts");
-      const icons = {
-        Telefono: "https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/apple.svg",
-        Email: "https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/gmail.svg",
-        Web: "https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/chrome.svg",
-        Linkedin: "https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/linkedin.svg",
-        Facebook: "https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/facebook.svg",
-        Instagram: "https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/instagram.svg"
-      };
+      // Foto perfil
+      let fotoUrl = "";
+      if (Array.isArray(row.Foto_perfil) && row.Foto_perfil[0]?.path) {
+        fotoUrl = `https://idgonow.up.railway.app/${row.Foto_perfil[0].path}`;
+      }
+      if (fotoUrl) document.getElementById("foto").src = fotoUrl;
 
-      const fields = {
-        Telefono: row.Telefono && `tel:${row.Telefono}`,
-        Email: row.Email && `mailto:${row.Email}`,
-        Web: row.Web,
-        Linkedin: row.Linkedin,
-        Facebook: row.Facebook,
-        Instagram: row.Instagram
-      };
-
-      for (const [k, v] of Object.entries(fields)) {
-        if (v) {
-          const div = document.createElement("div");
-          div.className = "contact-line";
-          div.innerHTML = `<img src="${icons[k]}" alt="${k}">` +
-                          `<a href="${v}" target="_blank">${k === "Telefono" ? row.Telefono : v.replace(/https?:\\/\\//,'')}</a>`;
-          contacts.appendChild(div);
-        }
+      // Logo empresa (como overlay decorativo si quieres usarlo luego)
+      if (Array.isArray(row.Logo_empresa) && row.Logo_empresa[0]?.path) {
+        const logoImg = document.createElement("img");
+        logoImg.src = `https://idgonow.up.railway.app/${row.Logo_empresa[0].path}`;
+        logoImg.className = "logo-empresa";
+        document.querySelector(".container").appendChild(logoImg);
       }
 
-      // Guardar vCard
-      document.getElementById("guardarVCF").onclick = () => {
-        const vc = [
-          "BEGIN:VCARD", "VERSION:3.0",
-          `FN:${row.Nombre} ${row.Apellido}`,
-          row.Empresa && `ORG:${row.Empresa}`,
-          row.Cargo && `TITLE:${row.Cargo}`,
-          row.Telefono && `TEL;TYPE=CELL:${row.Telefono}`,
-          row.Email && `EMAIL:${row.Email}`,
-          row.Web && `URL:${row.Web}`,
-          row.Linkedin && `URL:${row.Linkedin}`,
-          row.Facebook && `URL:${row.Facebook}`,
-          row.Instagram && `URL:${row.Instagram}`,
-          "END:VCARD"
-        ].filter(Boolean).join("\n");
-        const blob = new Blob([vc],{type:"text/vcard"});
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `${row.Nombre}_${row.Apellido}_IDGoNow.vcf`;
-        a.click();
-      };
+      const contacto = document.getElementById("contacto");
+
+      function agregarDato(etiqueta, valor, tipo = "texto") {
+        if (!valor) return;
+        const cont = document.createElement("div");
+        cont.className = "info-icono";
+
+        const icon = document.createElement("img");
+        icon.src = iconos[etiqueta] || iconos.Web;
+        cont.appendChild(icon);
+
+        const contenido = tipo === "link"
+          ? `<a href="${valor}" target="_blank">${valor}</a>`
+          : etiqueta === "Email"
+            ? `<a href="mailto:${valor}">${valor}</a>`
+            : valor;
+
+        cont.innerHTML += `<strong>${etiqueta}:</strong> ${contenido}`;
+        contacto.appendChild(cont);
+      }
+
+      agregarDato("Telefono", row.Telefono);
+      agregarDato("Email", row.Email, "email");
+      agregarDato("Web", row["Web Corporativa"], "link");
+      agregarDato("Linkedin", row["Linkedin"], "link");
+      agregarDato("Facebook", row["Facebook"], "link");
+      agregarDato("Instagram", row["Instagram"], "link");
+    });
+
+    document.getElementById("guardarVCF").addEventListener("click", () => {
+      if (!row) return;
+
+      const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
+      const vcard = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        `FN:${nombre}`,
+        row.Empresa ? `ORG:${row.Empresa}` : "",
+        row.Cargo ? `TITLE:${row.Cargo}` : "",
+        row.Telefono ? `TEL;TYPE=CELL:${row.Telefono}` : "",
+        row.Email ? `EMAIL:${row.Email}` : "",
+        row["Web Corporativa"] ? `URL:${row["Web Corporativa"]}` : "",
+        row["Linkedin"] ? `URL:${row["Linkedin"]}` : "",
+        row["Facebook"] ? `URL:${row["Facebook"]}` : "",
+        row["Instagram"] ? `URL:${row["Instagram"]}` : "",
+        "END:VCARD"
+      ].filter(Boolean).join("\n");
+
+      const blob = new Blob([vcard], { type: "text/vcard" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${nombre.replace(/\s+/g, "_")}_IDGoNow.vcf`;
+      a.click();
     });
   </script>
 </body>
