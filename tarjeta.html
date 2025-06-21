@@ -91,7 +91,7 @@
       <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" id="logoEmpresa"/>
     </div>
     <div class="titulo" id="titulo">Hola</div>
-    <img src="" alt="Foto" class="foto-circular" id="foto"/>
+    <img src="" alt="Foto de perfil" class="foto-circular" id="foto"/>
 
     <div class="info-central" id="infoCentral"></div>
     <div class="datos-contacto" id="datosContacto"></div>
@@ -105,7 +105,6 @@
     const id = new URLSearchParams(window.location.search).get("id");
     const API_URL = `https://idgonow.up.railway.app/api/v2/tables/mjtul7m1klgri2j/records/${id}`;
     const TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
-    const BASE_URL = "https://idgonow.up.railway.app";
 
     let row = {};
 
@@ -119,23 +118,29 @@
       const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
       document.getElementById("titulo").innerText = `Hola, soy ${nombre}`;
 
-      // Foto
+      // Foto de perfil
+      let fotoUrl = "";
       if (Array.isArray(row.Foto_perfil) && row.Foto_perfil[0]?.path) {
-        document.getElementById("foto").src = `${BASE_URL}${row.Foto_perfil[0].path}`;
+        fotoUrl = `https://idgonow.up.railway.app/${row.Foto_perfil[0].path}`;
+      } else if (typeof row.Foto_perfil === "string" && row.Foto_perfil.startsWith("http")) {
+        fotoUrl = row.Foto_perfil;
       }
+      if (fotoUrl) document.getElementById("foto").src = fotoUrl;
 
-      // Logo
+      // Logo empresa
+      let logoUrl = "";
       if (Array.isArray(row.Logo_empresa) && row.Logo_empresa[0]?.path) {
-        document.getElementById("logoEmpresa").src = `${BASE_URL}${row.Logo_empresa[0].path}`;
+        logoUrl = `https://idgonow.up.railway.app/${row.Logo_empresa[0].path}`;
+      } else if (typeof row.Logo_empresa === "string" && row.Logo_empresa.startsWith("http")) {
+        logoUrl = row.Logo_empresa;
       }
+      if (logoUrl) document.getElementById("logoEmpresa").src = logoUrl;
 
-      // Info central
       const info = document.getElementById("infoCentral");
       ["Empresa", "Cargo"].forEach(key => {
         if (row[key]) info.innerHTML += `<p><strong>${key}:</strong> ${row[key]}</p>`;
       });
 
-      // Datos contacto
       const contacto = document.getElementById("datosContacto");
       ["Telefono", "Email", "Url_linkedin", "url_web", "Facebook", "Instagram"].forEach(key => {
         if (row[key]) contacto.innerHTML += `<p><strong>${key}:</strong> ${row[key]}</p>`;
@@ -144,7 +149,6 @@
 
     document.getElementById("guardarVCF").addEventListener("click", () => {
       if (!row) return;
-
       const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
       const vcard = [
         "BEGIN:VCARD",
