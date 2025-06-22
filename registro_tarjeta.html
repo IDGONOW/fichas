@@ -2,58 +2,78 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Registrar tarjeta profesional</title>
+  <title>Tarjeta de contacto digital</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
+      background: #e6f0fb;
       text-align: center;
+      padding: 2rem 1rem;
+      margin: 0;
+    }
+
+    .card {
+      background: #ffffff;
+      max-width: 400px;
+      margin: auto;
       padding: 2rem;
-      background: #f9f9f9;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
     .logo img {
-      max-width: 180px;
+      max-width: 120px;
       margin-bottom: 1rem;
     }
 
     h1 {
       font-size: 1.6rem;
-      color: #007bff;
+      color: #1a237e;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #444;
+      line-height: 1.5;
     }
 
     .btn {
       display: block;
-      width: 260px;
+      width: 100%;
+      max-width: 260px;
       margin: 2rem auto 0;
       padding: 1rem;
-      background-color: #28a745;
+      background-color: #0866c6;
       color: white;
       font-size: 1rem;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       text-decoration: none;
     }
 
     .btn:hover {
-      background-color: #218838;
+      background-color: #055bb2;
     }
   </style>
 </head>
 <body>
-  <div class="logo">
-    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo">
+  <div class="card">
+    <div class="logo">
+      <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo">
+    </div>
+
+    <h1>Tarjeta de contacto digital</h1>
+    <p>
+      Completa tu ficha profesional para que otros puedan encontrarte fácilmente.<br/>
+      Esta tarjeta estará disponible mediante NFC o código QR.
+    </p>
+
+    <a href="https://idgonow.up.railway.app/dashboard/#/nc/form/f9f93e1c-1b7c-494d-9b79-303bdb3153b6" class="btn" target="_blank">
+      📋 Registrar Tarjeta
+    </a>
   </div>
-
-  <h1>Registrar Tarjeta Profesional</h1>
-  <p>
-    Completa tu ficha profesional para que otros puedan encontrarte fácilmente. 
-    Esta tarjeta estará disponible mediante NFC o código QR.
-  </p>
-
-  <a href="https://idgonow.up.railway.app/dashboard/#/nc/form/f9f93e1c-1b7c-494d-9b79-303bdb3153b6" class="btn" target="_blank">
-    📋 Registrar Tarjeta
-  </a>
 </body>
 </html>
 
