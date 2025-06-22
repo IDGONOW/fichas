@@ -130,7 +130,7 @@
 
   <script>
     const id = new URLSearchParams(window.location.search).get("id");
-    const API_URL = https://idgonow.up.railway.app/api/v2/tables/mjtul7m1klgri2j/records/${id};
+    const API_URL = `https://idgonow.up.railway.app/api/v2/tables/mjtul7m1klgri2j/records/${id}`;
     const TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
     let row = {};
 
@@ -140,16 +140,16 @@
     .then(res => res.json())
     .then(data => {
       row = data.fields || data;
-      const nombre = ${row.Nombre || ""} ${row.Apellido || ""}.trim();
+      const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
       document.getElementById("nombre").textContent = nombre;
       document.getElementById("cargo").textContent = row.Cargo || "";
       document.getElementById("empresa").textContent = row.Empresa || "";
 
       if (Array.isArray(row.Foto_perfil) && row.Foto_perfil[0]?.path) {
-        document.getElementById("fotoPerfil").src = https://idgonow.up.railway.app/${row.Foto_perfil[0].path};
+        document.getElementById("fotoPerfil").src = `https://idgonow.up.railway.app/${row.Foto_perfil[0].path}`;
       }
       if (Array.isArray(row.Logo_empresa) && row.Logo_empresa[0]?.path) {
-        document.getElementById("logoEmpresa").src = https://idgonow.up.railway.app/${row.Logo_empresa[0].path};
+        document.getElementById("logoEmpresa").src = `https://idgonow.up.railway.app/${row.Logo_empresa[0].path}`;
       }
 
       const contacto = document.getElementById("datosContacto");
@@ -168,42 +168,43 @@
           const label = key;
           let link = value;
 
-          if (key === "Email") link = mailto:${value};
-          else if (!value.startsWith("http")) link = https://${value};
+          if (key === "Email") link = `mailto:${value}`;
+          else if (!value.startsWith("http")) link = `https://${value}`;
 
-          contacto.innerHTML += 
+          contacto.innerHTML += `
             <div class="fila-contacto">
               <img src="${iconos[key] || ''}" alt="icon">
               <a href="${link}" target="_blank">${value}</a>
-            </div>;
+            </div>`;
         }
       });
     });
 
     document.getElementById("guardarVCF").addEventListener("click", () => {
       if (!row) return;
-      const nombre = ${row.Nombre || ""} ${row.Apellido || ""}.trim();
+      const nombre = `${row.Nombre || ""} ${row.Apellido || ""}`.trim();
       const vcard = [
         "BEGIN:VCARD",
         "VERSION:3.0",
-        FN:${nombre},
-        row.Empresa ? ORG:${row.Empresa} : "",
-        row.Cargo ? TITLE:${row.Cargo} : "",
-        row.Telefono ? TEL;TYPE=CELL:${row.Telefono} : "",
-        row.Email ? EMAIL:${row.Email} : "",
-        row["Web Corporativa"] ? URL:${row["Web Corporativa"]} : "",
-        row.Linkedin ? URL:${row.Linkedin} : "",
-        row.Facebook ? URL:${row.Facebook} : "",
-        row.Instagram ? URL:${row.Instagram} : "",
+        `FN:${nombre}`,
+        row.Empresa ? `ORG:${row.Empresa}` : "",
+        row.Cargo ? `TITLE:${row.Cargo}` : "",
+        row.Telefono ? `TEL;TYPE=CELL:${row.Telefono}` : "",
+        row.Email ? `EMAIL:${row.Email}` : "",
+        row["Web Corporativa"] ? `URL:${row["Web Corporativa"]}` : "",
+        row.Linkedin ? `URL:${row.Linkedin}` : "",
+        row.Facebook ? `URL:${row.Facebook}` : "",
+        row.Instagram ? `URL:${row.Instagram}` : "",
         "END:VCARD"
       ].filter(Boolean).join("\n");
 
       const blob = new Blob([vcard], { type: "text/vcard" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = ${nombre.replace(/\s+/g, "_")}_IDGoNow.vcf;
+      a.download = `${nombre.replace(/\s+/g, "_")}_IDGoNow.vcf`;
       a.click();
     });
   </script>
 </body>
 </html>
+
