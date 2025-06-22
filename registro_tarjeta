@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registrar tarjeta profesional</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+
+    .logo img {
+      max-width: 180px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      color: #007bff;
+    }
+
+    .btn {
+      display: block;
+      width: 260px;
+      margin: 2rem auto 0;
+      padding: 1rem;
+      background-color: #28a745;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo">
+  </div>
+
+  <h1>Registrar Tarjeta Profesional</h1>
+  <p>
+    Completa tu ficha profesional para que otros puedan encontrarte fácilmente. 
+    Esta tarjeta estará disponible mediante NFC o código QR.
+  </p>
+
+  <a href="https://idgonow.up.railway.app/dashboard/#/nc/form/f9f93e1c-1b7c-494d-9b79-303bdb3153b6" class="btn" target="_blank">
+    📋 Registrar Tarjeta
+  </a>
+</body>
+</html>
+
