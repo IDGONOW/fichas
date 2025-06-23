@@ -32,25 +32,26 @@
       width: 48px;
     }
 
+    .perfil-logo-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
     .foto-perfil {
       width: 120px;
       height: 120px;
       border-radius: 50%;
       border: 4px solid white;
       object-fit: cover;
-      display: block;
-      margin: 0 auto;
-      position: relative;
     }
 
     .logo-empresa {
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
-      position: absolute;
-      bottom: -12px;
-      right: 50%;
-      transform: translateX(50%);
       background: white;
       border: 2px solid #ccc;
     }
@@ -124,15 +125,19 @@
 <body>
   <div class="container">
     <img src="https://i.imgur.com/r6g9Rud.png" class="idgonow-logo" alt="Logo IDGoNow" />
-    <div style="position: relative;">
+
+    <div class="perfil-logo-wrapper">
       <img src="" alt="Foto de perfil" class="foto-perfil" id="fotoPerfil">
       <img src="" alt="Logo Empresa" class="logo-empresa" id="logoEmpresa">
     </div>
+
     <div class="nombre" id="nombre"></div>
     <div class="cargo" id="cargo"></div>
     <div class="empresa" id="empresa"></div>
+
     <a class="btn-contacto" id="guardarVCF">📇 Guardar contacto</a>
     <div class="texto-ayuda">Al pulsar, tu teléfono debería abrir la app de contactos para guardar esta tarjeta.</div>
+
     <div class="datos-contacto" id="datosContacto"></div>
   </div>
 
@@ -174,10 +179,8 @@
         if (row[key]) {
           const value = row[key];
           let link = value;
-
           if (key === "Email") link = `mailto:${value}`;
           else if (!value.startsWith("http")) link = `https://${value}`;
-
           contacto.innerHTML += `
             <div class="fila-contacto">
               <img src="${iconos[key] || ''}" alt="icon">
@@ -203,12 +206,12 @@
         row.Facebook ? `URL:${row.Facebook}` : "",
         row.Instagram ? `URL:${row.Instagram}` : "",
         "END:VCARD"
-      ].filter(Boolean).join("\n");
+      ].filter(Boolean).join("\\n");
 
       const blob = new Blob([vcard], { type: "text/vcard" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `${nombre.replace(/\s+/g, "_")}_IDGoNow.vcf`;
+      a.download = `${nombre.replace(/\\s+/g, "_")}_IDGoNow.vcf`;
       a.click();
     });
   </script>
