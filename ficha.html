@@ -106,40 +106,40 @@
     .whatsapp { background-color: #25d366; }
     .ubicacion { background-color: #fbbc05; color: #222; }
 
-    #modalMapa {
+    /* Modal ubicación */
+    #ubicacionModal {
       display: none;
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      justify-content: center;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #0008;
+      z-index: 999;
       align-items: center;
+      justify-content: center;
     }
-
-    #modalMapa .modal-content {
-      background: #fff;
+    #ubicacionModal .modal-content {
+      background: white;
       padding: 1rem;
       border-radius: 10px;
-      max-width: 380px;
-      width: 90%;
+      max-width: 90%;
+      width: 400px;
+      text-align: center;
     }
-
-    #modalMapa h3 {
-      margin-top: 0;
+    #ubicacionModal iframe {
+      border: 0;
+      border-radius: 8px;
+      width: 100%;
+      height: 250px;
     }
-
-    #modalMapa button {
-      padding: 0.5rem 1rem;
-      font-size: 15px;
+    #ubicacionModal button {
+      padding: 0.7rem 1rem;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
-
-    #linkUbicacion {
-      word-break: break-all;
-      margin: 1rem 0;
-      color: #1a73e8;
-      text-decoration: underline;
-    }
+    #ubicacionModal .confirm { background: #25d366; color: white; }
+    #ubicacionModal .cancel { background: #ccc; margin-left: 1rem; }
   </style>
 </head>
 <body>
@@ -158,14 +158,15 @@
     <div class="btns" id="botones"></div>
   </div>
 
-  <!-- Modal sin API Key -->
-  <div id="modalMapa">
+  <!-- Modal de ubicación -->
+  <div id="ubicacionModal">
     <div class="modal-content">
-      <h3>¿Enviar esta ubicación por WhatsApp?</h3>
-      <a id="linkUbicacion" href="#" target="_blank"></a>
-      <div style="display:flex; justify-content:space-between;">
-        <button onclick="cancelarEnvio()">Cancelar</button>
-        <button onclick="confirmarEnvio()" style="background:#25d366; color:white; border:none; border-radius:4px;">Enviar</button>
+      <h3>Confirmar ubicación</h3>
+      <p>¿Esta es tu ubicación actual?</p>
+      <iframe id="mapaUbicacion" allowfullscreen></iframe>
+      <div style="margin-top:1rem; display:flex; justify-content:space-between;">
+        <button class="confirm" onclick="confirmarUbicacion()">Enviar</button>
+        <button class="cancel" onclick="cerrarModal()">Cancelar</button>
       </div>
     </div>
   </div>
@@ -176,9 +177,7 @@
     const API_URL = `https://idgonow.up.railway.app/api/v2/tables/m1ebsgkhbspdiqq/records/${recordId}`;
     const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
 
-    let ubicacionTmp = null;
-    let telefonoTmp = "";
-    let nombreTmp = "";
+    let ubicacionTmp = { lat: null, lng: null, tel: null, nombre: null };
 
     fetch(API_URL, {
       headers: { "xc-token": API_TOKEN }
@@ -233,32 +232,35 @@
     });
 
     function enviarUbicacion(tel, nombre) {
-      if (!navigator.geolocation) return alert("Este navegador no soporta geolocalización.");
+      if (!navigator.geolocation) {
+        alert("Este navegador no soporta geolocalización.");
+        return;
+      }
+
       navigator.geolocation.getCurrentPosition(pos => {
-        ubicacionTmp = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude
-        };
-        telefonoTmp = tel;
-        nombreTmp = nombre;
-
-        const link = `https://www.google.com/maps?q=${ubicacionTmp.lat},${ubicacionTmp.lng}`;
-        document.getElementById("linkUbicacion").href = link;
-        document.getElementById("linkUbicacion").textContent = link;
-        document.getElementById("modalMapa").style.display = "flex";
-      }, () => alert("No se pudo obtener la ubicación."));
+        const { latitude, longitude } = pos.coords;
+        ubicacionTmp = { lat: latitude, lng: longitude, tel, nombre };
+        document.getElementById("mapaUbicacion").src = `https://maps.google.com/maps?q=${latitude},${longitude}&hl=es&z=16&output=embed`;
+        document.getElementById("ubicacionModal").style.display = "flex";
+      }, () => {
+        alert("No se pudo obtener la ubicación.");
+      }, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      });
     }
 
-    function cancelarEnvio() {
-      document.getElementById("modalMapa").style.display = "none";
-      ubicacionTmp = null;
+    function confirmarUbicacion() {
+      const { lat, lng, tel, nombre } = ubicacionTmp;
+      const link = `https://www.google.com/maps?q=${lat},${lng}`;
+      const msg = `Hola, he encontrado a ${nombre}. Mi ubicación actual es: ${link}`;
+      window.open(`https://wa.me/51${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+      cerrarModal();
     }
 
-    function confirmarEnvio() {
-      const link = `https://www.google.com/maps?q=${ubicacionTmp.lat},${ubicacionTmp.lng}`;
-      const msg = `Hola, he encontrado a ${nombreTmp}. Mi ubicación es: ${link}`;
-      window.open(`https://wa.me/51${telefonoTmp}?text=${encodeURIComponent(msg)}`, '_blank');
-      cancelarEnvio();
+    function cerrarModal() {
+      document.getElementById("ubicacionModal").style.display = "none";
     }
   </script>
 </body>
