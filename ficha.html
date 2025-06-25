@@ -3,43 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IDGoNow | Tarjeta Profesional</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #dbeeff;
-      margin: 0;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .container {
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 20px;
-      max-width: 440px;
-      width: 100%;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      position: relative;
-    }
-
-    .idgonow-logo {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 48px;
-    }
-
-    .foto-wrapper {
-      position: relative…
-[11:12 a. m., 24/6/2025] Fernando Vereau: https://idgonow.vermontec.pe/tarjeta.html?id=28
-[7:01 p. m., 24/6/2025] Fernando Vereau: <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ficha | IDGoNow</title>
   <style>
     body {
@@ -51,10 +14,10 @@
     }
     .logo {
       text-align: center;
-      margin-bottom: 0.5rem;
     }
     .logo img {
       width: 140px;
+      margin-bottom: 1rem;
     }
     h2 {
       text-align: center;
@@ -72,18 +35,18 @@
     .info-central {
       background: #eee;
       padding: 1rem;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-bottom: 1.2rem;
     }
     .info-central p {
-      margin: 0.2rem 0;
+      margin: 0.3rem 0;
       font-size: 15px;
     }
     .seccion-contacto {
       background: #007b8f;
       color: white;
       padding: 0.7rem 1rem;
-      border-radius: 10px 10px 0 0;
+      border-radius: 12px 12px 0 0;
       font-weight: bold;
       display: flex;
       align-items: center;
@@ -95,7 +58,7 @@
     .datos-contacto {
       border: 1px solid #007b8f;
       border-top: none;
-      border-radius: 0 0 10px 10px;
+      border-radius: 0 0 12px 12px;
       padding: 1rem;
       font-size: 15px;
     }
@@ -110,8 +73,8 @@
     }
     .btns a {
       text-decoration: none;
-      padding: 0.9rem;
-      border-radius: 8px;
+      padding: 1rem;
+      border-radius: 12px;
       font-weight: bold;
       text-align: center;
       font-size: 16px;
@@ -121,7 +84,6 @@
     .whatsapp { background: #25d366; }
     .ubicacion { background: #fbbc05; color: #222; }
 
-    /* Modal ubicación */
     #ubicacionModal {
       display: none;
       position: fixed;
@@ -134,7 +96,7 @@
     #ubicacionModal .modal-content {
       background: white;
       padding: 1rem;
-      border-radius: 10px;
+      border-radius: 12px;
       max-width: 90%;
       width: 400px;
       text-align: center;
@@ -157,6 +119,7 @@
     #ubicacionModal .cancel { background: #ccc; margin-left: 1rem; }
   </style>
 </head>
+
 <body>
   <div class="logo">
     <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo">
@@ -170,7 +133,7 @@
   <div class="datos-contacto" id="datosContacto"></div>
   <div class="btns" id="botones"></div>
 
-  <!-- Modal de ubicación -->
+  <!-- Modal ubicación -->
   <div id="ubicacionModal">
     <div class="modal-content">
       <h3>Confirmar ubicación</h3>
@@ -191,9 +154,7 @@
 
     let ubicacionActual = { lat: null, lng: null, tel: null, nombre: null };
 
-    fetch(API_URL, {
-      headers: { "xc-token": API_TOKEN }
-    })
+    fetch(API_URL, { headers: { "xc-token": API_TOKEN } })
     .then(res => res.json())
     .then(data => {
       const row = data.fields || data;
@@ -204,11 +165,8 @@
       let fotoUrl = "";
       if (fotoCampo) {
         const val = fotoCampo[1];
-        if (Array.isArray(val) && val[0]?.path) {
-          fotoUrl = https://idgonow.up.railway.app/${val[0].path};
-        } else if (typeof val === "string" && val.startsWith("http")) {
-          fotoUrl = val;
-        }
+        if (Array.isArray(val) && val[0]?.path) fotoUrl = https://idgonow.up.railway.app/${val[0].path};
+        else if (typeof val === "string" && val.startsWith("http")) fotoUrl = val;
       }
       if (fotoUrl) document.getElementById("foto").src = fotoUrl;
 
