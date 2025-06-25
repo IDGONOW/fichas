@@ -133,6 +133,13 @@
       padding: 0.5rem 1rem;
       font-size: 15px;
     }
+
+    #linkUbicacion {
+      word-break: break-all;
+      margin: 1rem 0;
+      color: #1a73e8;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -151,11 +158,11 @@
     <div class="btns" id="botones"></div>
   </div>
 
-  <!-- Modal de confirmación de ubicación -->
+  <!-- Modal sin API Key -->
   <div id="modalMapa">
     <div class="modal-content">
       <h3>¿Enviar esta ubicación por WhatsApp?</h3>
-      <div id="mapa" style="width:100%; height:300px; border:1px solid #ccc; border-radius:8px; margin-bottom:1rem;"></div>
+      <a id="linkUbicacion" href="#" target="_blank"></a>
       <div style="display:flex; justify-content:space-between;">
         <button onclick="cancelarEnvio()">Cancelar</button>
         <button onclick="confirmarEnvio()" style="background:#25d366; color:white; border:none; border-radius:4px;">Enviar</button>
@@ -179,5 +186,80 @@
     .then(res => res.json())
     .then(data => {
       const row = data.fields || data;
-      document.getElementById("tit
+      document.getElementById("titulo").innerText = "Hola, soy " + (row["Nombre"] || "");
 
+      const fotoCampo = Object.entries(row).find(([k]) => k.toLowerCase().includes("foto"));
+      let fotoUrl = "";
+      if (fotoCampo) {
+        const val = fotoCampo[1];
+        if (Array.isArray(val) && val[0]?.path) {
+          fotoUrl = `https://idgonow.up.railway.app/${val[0].path}`;
+        } else if (typeof val === "string" && val.startsWith("http")) {
+          fotoUrl = val;
+        }
+      }
+      if (fotoUrl) document.getElementById("foto").src = fotoUrl;
+
+      const infoCentral = document.getElementById("infoCentral");
+      const contacto = document.getElementById("datosContacto");
+
+      function agregarLinea(titulo, valor, contenedor) {
+        if (valor) {
+          contenedor.innerHTML += `<p><strong>${titulo}:</strong> ${valor}</p>`;
+        }
+      }
+
+      agregarLinea("Edad", row["Edad"], infoCentral);
+      agregarLinea("Tipo", row["Tipo de mascota"], infoCentral);
+      agregarLinea("Raza", row["Raza y características"], infoCentral);
+      agregarLinea("Información médica o datos útiles", row["Información médica o datos útiles"], infoCentral);
+
+      agregarLinea("Nombre", row["Nombre del contacto"], contacto);
+      agregarLinea("Teléfono", row["Teléfono de contacto"], contacto);
+      agregarLinea("Correo", row["Correo de contacto"], contacto);
+
+      const nombre = row["Nombre"] || "la persona o mascota";
+      const tel = row["Teléfono de contacto"]?.replace(/\D/g, "");
+      const mensaje = encodeURIComponent(`Hola, he encontrado a ${nombre}, por favor comuníquese conmigo.`);
+      const botonesDiv = document.getElementById("botones");
+
+      if (tel) {
+        botonesDiv.innerHTML = `
+          <a href="tel:+51${tel}" class="call">📞 Llamar</a>
+          <a href="https://wa.me/51${tel}?text=${mensaje}" target="_blank" class="whatsapp">💬 WhatsApp</a>
+          <a href="javascript:void(0)" onclick="enviarUbicacion('${tel}', '${nombre}')" class="ubicacion">📍 Enviar ubicación</a>
+        `;
+      }
+    });
+
+    function enviarUbicacion(tel, nombre) {
+      if (!navigator.geolocation) return alert("Este navegador no soporta geolocalización.");
+      navigator.geolocation.getCurrentPosition(pos => {
+        ubicacionTmp = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        };
+        telefonoTmp = tel;
+        nombreTmp = nombre;
+
+        const link = `https://www.google.com/maps?q=${ubicacionTmp.lat},${ubicacionTmp.lng}`;
+        document.getElementById("linkUbicacion").href = link;
+        document.getElementById("linkUbicacion").textContent = link;
+        document.getElementById("modalMapa").style.display = "flex";
+      }, () => alert("No se pudo obtener la ubicación."));
+    }
+
+    function cancelarEnvio() {
+      document.getElementById("modalMapa").style.display = "none";
+      ubicacionTmp = null;
+    }
+
+    function confirmarEnvio() {
+      const link = `https://www.google.com/maps?q=${ubicacionTmp.lat},${ubicacionTmp.lng}`;
+      const msg = `Hola, he encontrado a ${nombreTmp}. Mi ubicación es: ${link}`;
+      window.open(`https://wa.me/51${telefonoTmp}?text=${encodeURIComponent(msg)}`, '_blank');
+      cancelarEnvio();
+    }
+  </script>
+</body>
+</html>
