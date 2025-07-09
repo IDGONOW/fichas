@@ -1,90 +1,61 @@
-<!-- Este archivo es el nuevo verificador.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IDGoNow | Verificación de Tag</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificación de Tag | IDGoNow</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f4f4f4;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      padding: 1rem;
-    }
-    .card {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       text-align: center;
-      max-width: 400px;
+      padding: 2rem;
+      background-color: #f4f4f4;
     }
-    .card img {
-      width: 100px;
-      margin-bottom: 1rem;
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 2rem auto;
     }
-    h1 {
-      color: #007bff;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-    p {
-      color: #333;
-      margin-bottom: 1.5rem;
-    }
-    a.boton {
-      display: inline-block;
-      padding: 0.8rem 1.5rem;
-      background-color: #007bff;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <div class="card" id="estado">
-    <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow">
-    <h1>Verificando Tag...</h1>
-    <p>Por favor, espera un momento.</p>
-  </div>
-
+  <h2>Verificando tag...</h2>
+  <div class="loader"></div>
   <script>
     const params = new URLSearchParams(window.location.search);
     const tag = params.get("tag");
-    const API_URL = `https://idgonow.up.railway.app/api/v2/tables/m1ebsgkhbspdiqq/records?where=tag%3D'${tag}'`;
-    const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
 
-    fetch(API_URL, {
-      headers: { "xc-token": API_TOKEN }
-    })
-    .then(res => res.json())
-    .then(json => {
-      const estadoDiv = document.getElementById("estado");
-
-      if (json.list.length > 0) {
-        // Tag encontrado, mostrar ficha
-        const recordId = json.list[0].id;
-        window.location.href = `ficha.html?id=${recordId}`;
-      } else {
-        // Tag no encontrado, registrar ficha nueva
-        estadoDiv.innerHTML = `
-          <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow">
-          <h1>Tag no activado</h1>
-          <p>Este tag no está vinculado a ninguna ficha. Puedes registrarla ahora.</p>
-          <a class="boton" href="registro_completo.html?tag=${tag}">Registrar ahora</a>
-        `;
-      }
-    })
-    .catch(err => {
-      document.getElementById("estado").innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
-    });
+    if (!tag) {
+      document.body.innerHTML = "<p style='color:red;'>❌ No se especificó ningún tag.</p>";
+    } else {
+      fetch(`https://idgonow.up.railway.app/api/v2/tables/m1ebsgkhbspdiqq/records?where=tag%3D%22${tag}%22`, {
+        headers: {
+          "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.list && data.list.length > 0) {
+          // Tag ya activado, redirige a ficha.html
+          window.location.href = `ficha.html?tag=${tag}`;
+        } else {
+          // Tag no activado aún, redirige a registro completo
+          window.location.href = `registro_completo.html?tag=${tag}`;
+        }
+      })
+      .catch(err => {
+        document.body.innerHTML = `<p style='color:red;'>❌ Error al verificar el tag: ${err.message}</p>`;
+      });
+    }
   </script>
 </body>
 </html>
+
