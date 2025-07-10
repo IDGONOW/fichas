@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -76,10 +75,10 @@
     <h1>Registro de Mascota</h1>
     <form id="registroForm" enctype="multipart/form-data">
       <label for="email">Correo del usuario</label>
-      <input type="email" id="email" name="usuario_email" required />
+      <input type="email" id="email" name="usuario_email" required autocomplete="email" />
 
       <label for="clave">Crea una clave</label>
-      <input type="password" id="clave" name="usuario_clave" required />
+      <input type="password" id="clave" name="usuario_clave" required autocomplete="new-password" />
 
       <label for="nombre">Nombre de tu mascota</label>
       <input type="text" id="nombre" name="Nombre" required />
@@ -132,7 +131,7 @@
       formData.append("token_edicion", token);
 
       try {
-        const response = await fetch("https://idgonow.vermontec.pe/api/registro", {
+        const response = await fetch("https://idgonow-backend.up.railway.app/registrar", {
           method: "POST",
           body: formData
         });
@@ -151,3 +150,4 @@
   </script>
 </body>
 </html>
+
