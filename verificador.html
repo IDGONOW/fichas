@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificación de Tag | IDGoNow</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 2rem;
+      background-color: #f4f4f4;
+    }
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 2rem auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <h2>Verificando tag...</h2>
+  <div class="loader"></div>
+  
+<script>
+  const params = new URLSearchParams(window.location.search);
+  let id = params.get("id");
+
+  if (!id) {
+    document.body.innerHTML = "<p style='color:red;'>❌ No se especificó ningún ID.</p>";
+  } else {
+    if (id.startsWith("ID")) {
+      id = parseInt(id.replace("ID", "").replace(/^0+/, ''));
+    }
+
+    fetch(`https://idgonow.up.railway.app/api/v2/tables/m340oj04ihz4wlu/records/${id}`, {
+      headers: { "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy" }
+    })
+    .then(res => {
+      if (res.ok) {
+        window.location.href = `ficha.html?id=ID${String(id).padStart(6, '0')}`;
+      } else {
+        window.location.href = `index2.html?id=ID${String(id).padStart(6, '0')}`;
+      }
+    })
+    .catch(err => {
+      document.body.innerHTML = `<p style='color:red;'>❌ Error al verificar el ID: ${err.message}</p>`;
+    });
+  }
+</script>
+
+</body>
+</html>
+
