@@ -1,0 +1,31 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>IDGoNow | Registro</title>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  const apiToken = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+  const baseUrl = "https://idgonow.up.railway.app";
+  const tableId = "m340oj04ihz4wlu";
+
+  if (id) {
+    fetch(`${baseUrl}/api/v2/tables/${tableId}/records/${id}`, {
+      headers: { "xc-token": apiToken }
+    }).then(res => {
+      if (res.ok) {
+        window.location.href = `ficha.html?id=${id}`;
+      }
+    });
+  }
+</script>
+
+</head>
+<body>
+  <!-- Contenido original aquí -->
+</body>
+</html>
