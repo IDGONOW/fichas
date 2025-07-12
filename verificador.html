@@ -46,9 +46,9 @@
     })
     .then(res => {
       if (res.ok) {
-        window.location.href = `ficha.html?id=ID${String(id).padStart(6, '0')}`;
+        window.location.href = `ficha.html?id=${id}`;
       } else {
-        window.location.href = `index2.html?id=ID${String(id).padStart(6, '0')}`;
+        window.location.href = `index2.html?id=${id}`;
       }
     })
     .catch(err => {
