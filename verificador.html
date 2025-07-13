@@ -30,32 +30,31 @@
   <h2>Verificando tag...</h2>
   <div class="loader"></div>
   
+
 <script>
   const params = new URLSearchParams(window.location.search);
-  let id = params.get("id");
+  const tag = params.get("tag");
 
-  if (!id) {
-    document.body.innerHTML = "<p style='color:red;'>❌ No se especificó ningún ID.</p>";
+  if (!tag) {
+    document.body.innerHTML = "<p style='color:red;'>❌ No se especificó ningún tag.</p>";
   } else {
-    if (id.startsWith("ID")) {
-      id = parseInt(id.replace("ID", "").replace(/^0+/, ''));
-    }
-
-    fetch(`https://idgonow.up.railway.app/api/v2/tables/m340oj04ihz4wlu/records/${id}`, {
+    fetch(`https://idgonow.up.railway.app/api/v2/tables/m340oj04ihz4wlu/records?where=tag,eq,${tag}`, {
       headers: { "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy" }
     })
-    .then(res => {
-      if (res.ok) {
-        window.location.href = `ficha.html?id=${id}`;
+    .then(res => res.json())
+    .then(data => {
+      if (data.records && data.records.length > 0) {
+        window.location.href = `ficha.html?tag=${tag}`;
       } else {
-        window.location.href = `index2.html?id=${id}`;
+        window.location.href = `index.html?tag=${tag}`;
       }
     })
     .catch(err => {
-      document.body.innerHTML = `<p style='color:red;'>❌ Error al verificar el ID: ${err.message}</p>`;
+      document.body.innerHTML = `<p style='color:red;'>❌ Error al verificar el tag: ${err.message}</p>`;
     });
   }
 </script>
+
 
 </body>
 </html>
