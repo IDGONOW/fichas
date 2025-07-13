@@ -12,15 +12,26 @@
 
 
 
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const params = new URLSearchParams(window.location.search);
-    const tag = params.get("tag");
-    if (tag) {
-      document.getElementById("registroBtn").style.display = "block";
+    const tag = sessionStorage.getItem("tagPendiente");
+    const btn = document.getElementById("registroBtn");
+    if (tag && btn) {
+      btn.style.display = "block";
+    }
+
+    const form = document.querySelector("form");
+    if (form && tag) {
+      const hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.name = "tag";
+      hidden.value = tag;
+      form.appendChild(hidden);
     }
   });
 </script>
+
 
 
 
