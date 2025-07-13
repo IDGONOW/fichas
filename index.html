@@ -3,44 +3,69 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>IDGoNow | Registro</title>
-
-
-
-
-
-
-
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const tag = sessionStorage.getItem("tagPendiente");
-    const btn = document.getElementById("registroBtn");
-    if (tag && btn) {
-      btn.style.display = "block";
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
     }
 
-    const form = document.querySelector("form");
-    if (form && tag) {
-      const hidden = document.createElement("input");
-      hidden.type = "hidden";
-      hidden.name = "tag";
-      hidden.value = tag;
-      form.appendChild(hidden);
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 460px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-  });
-</script>
 
+    img {
+      max-width: 160px;
+      margin-bottom: 1rem;
+    }
 
+    h1 {
+      font-size: 1.5rem;
+      color: #007b8f;
+      margin-bottom: 1rem;
+    }
 
+    p {
+      font-size: 1rem;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
 
+    .btn {
+      display: inline-block;
+      background: #007b8f;
+      color: white;
+      padding: 0.9rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+    }
 
-
-
-
+    .btn:hover {
+      background: #005e73;
+    }
+  </style>
 </head>
 <body>
-  <!-- Contenido original aquí -->
+  <div class="container">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow">
+    <h1>Registro de mascota</h1>
+    <p>Ingresa el código que aparece en el TAG físico (por ejemplo: <strong>ID000123</strong>) al momento de llenar el formulario.</p>
+    <a href="https://idgonow.up.railway.app/dashboard/#/nc/form/a12cb691-2808-47c9-bfcc-b1eebc909385" target="_blank" class="btn">Ir al formulario</a>
+  </div>
 </body>
 </html>
