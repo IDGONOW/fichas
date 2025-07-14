@@ -8,85 +8,84 @@
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #f2f2f2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 90%;
-      max-width: 480px;
       text-align: center;
+      padding: 2rem;
     }
-    code {
-      background: #eee;
-      padding: 0.5rem;
-      display: block;
-      margin: 1rem 0;
-      border-radius: 6px;
-      font-size: 0.9rem;
+    .card {
+      background: white;
+      max-width: 480px;
+      margin: auto;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    .btn {
+    .ok { color: green; font-weight: bold; }
+    .err { color: red; font-weight: bold; }
+    button {
       margin-top: 1rem;
-      display: inline-block;
+      padding: 0.7rem 1.5rem;
+      border: none;
       background: #007b8f;
       color: white;
-      padding: 0.8rem 1.5rem;
-      text-decoration: none;
+      font-size: 16px;
       border-radius: 6px;
-      font-weight: bold;
+      cursor: pointer;
     }
-    .error { color: red; font-weight: bold; margin-top: 1rem; }
-    .ok { color: green; font-weight: bold; margin-top: 1rem; }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="card">
     <h2>🔍 Verificando TAG...</h2>
-    <div id="info"></div>
+    <p id="estado">Iniciando...</p>
+    <pre id="url" style="font-size: 12px;"></pre>
     <div id="resultado"></div>
-    <div id="acciones"></div>
   </div>
 
   <script>
-    const tag = new URLSearchParams(window.location.search).get("tag");
+    const params = new URLSearchParams(window.location.search);
+    const tag = params.get("tag");
+
+    if (!tag) {
+      document.getElementById("estado").innerText = "❌ No se especificó ningún tag.";
+      throw new Error("No tag");
+    }
+
     const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
     const TABLE_ID = "m340oj04ihz4wlu";
     const API_BASE = "https://idgonow.up.railway.app/api/v2";
-    const infoDiv = document.getElementById("info");
-    const resultadoDiv = document.getElementById("resultado");
-    const accionesDiv = document.getElementById("acciones");
+    const apiUrl = `${API_BASE}/tables/${TABLE_ID}/records?filters={"tag":{"_eq":"${tag}"}}`;
 
-    if (!tag) {
-      resultadoDiv.innerHTML = "<div class='error'>❌ No se especificó ningún TAG en la URL.</div>";
-    } else {
-      const query = `${API_BASE}/tables/${TABLE_ID}/records?filters=` + encodeURIComponent(JSON.stringify({ tag: { _eq: tag } }));
-      infoDiv.innerHTML = `<code>📡 ${query}</code>`;
+    document.getElementById("estado").innerText = "Consultando...";
+    document.getElementById("url").innerText = apiUrl;
 
-      fetch(query, {
-        headers: { "xc-token": API_TOKEN }
-      })
-      .then(res => res.json())
-      .then(data => {
-        console.log("Respuesta NocoDB:", data);
-        if (data.list && data.list.length > 0) {
-          resultadoDiv.innerHTML = `<div class='ok'>✅ TAG encontrado</div>`;
-          accionesDiv.innerHTML = `<a class="btn" href="ficha.html?tag=${tag}">Ver ficha</a>`;
-        } else {
-          resultadoDiv.innerHTML = `<div class='error'>❌ TAG no encontrado</div>`;
-          accionesDiv.innerHTML = `<a class="btn" href="index.html?tag=${tag}">Registrar ahora</a>`;
-        }
-      })
-      .catch(err => {
-        resultadoDiv.innerHTML = `<div class='error'>⚠️ Error al consultar: ${err.message}</div>`;
-        console.error(err);
-      });
-    }
+    fetch(apiUrl, {
+      headers: { "xc-token": API_TOKEN }
+    })
+    .then(res => res.json())
+    .then(json => {
+      console.log("📦 Datos recibidos:", json);
+
+      const container = document.getElementById("resultado");
+
+      if (json.list && json.list.length > 0) {
+        const id = json.list[0].id;
+        container.innerHTML = `
+          <p class="ok">✅ TAG encontrado</p>
+          <button onclick="location.href='ficha.html?id=${id}'">Ver ficha</button>
+        `;
+      } else {
+        container.innerHTML = `
+          <p class="err">❌ TAG no encontrado</p>
+          <button onclick="location.href='index.html'">Ir al registro</button>
+        `;
+      }
+    })
+    .catch(err => {
+      document.getElementById("resultado").innerHTML = `
+        <p class="err">⚠️ Error consultando la API</p>
+        <pre>${err.message}</pre>
+      `;
+    });
   </script>
 </body>
 </html>
