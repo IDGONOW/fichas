@@ -2,90 +2,124 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Verificador TAG | IDGoNow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verificador TAG - IDGoNow</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f2f2f2;
-      text-align: center;
-      padding: 2rem;
+      font-family: sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
-    .card {
+    .box {
       background: white;
-      max-width: 480px;
-      margin: auto;
-      border-radius: 12px;
       padding: 2rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
     }
-    .ok { color: green; font-weight: bold; }
-    .err { color: red; font-weight: bold; }
+    .box pre {
+      text-align: left;
+      background: #eee;
+      padding: 1rem;
+      font-size: 0.8rem;
+      overflow-x: auto;
+    }
+    .status-ok {
+      color: green;
+      font-weight: bold;
+    }
+    .status-error {
+      color: red;
+      font-weight: bold;
+    }
     button {
-      margin-top: 1rem;
-      padding: 0.7rem 1.5rem;
-      border: none;
       background: #007b8f;
+      border: none;
       color: white;
-      font-size: 16px;
+      padding: 0.8rem 1.5rem;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="box">
     <h2>🔍 Verificando TAG...</h2>
-    <p id="estado">Iniciando...</p>
-    <pre id="url" style="font-size: 12px;"></pre>
-    <div id="resultado"></div>
+    <div id="status">Iniciando...</div>
+    <pre id="apiUrl"></pre>
+    <div id="result"></div>
+    <div id="botones"></div>
   </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const tag = params.get("tag");
 
+    const statusDiv = document.getElementById("status");
+    const apiUrlPre = document.getElementById("apiUrl");
+    const resultDiv = document.getElementById("result");
+    const botonesDiv = document.getElementById("botones");
+
     if (!tag) {
-      document.getElementById("estado").innerText = "❌ No se especificó ningún tag.";
-      throw new Error("No tag");
+      statusDiv.innerHTML = "<span class='status-error'>❌ No se especificó ningún tag.</span>";
+      throw new Error("Falta parámetro ?tag");
     }
 
     const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
     const TABLE_ID = "m340oj04ihz4wlu";
-    const API_BASE = "https://idgonow.up.railway.app/api/v2";
-    const apiUrl = `${API_BASE}/tables/${TABLE_ID}/records?filters={"tag":{"_eq":"${tag}"}}`;
+    const BASE_URL = `https://idgonow.up.railway.app/api/v2/tables/${TABLE_ID}/records`;
 
-    document.getElementById("estado").innerText = "Consultando...";
-    document.getElementById("url").innerText = apiUrl;
+    const filters = {
+      tag: { _eq: tag }
+    };
 
-    fetch(apiUrl, {
+    const query = `${BASE_URL}?filters=${encodeURIComponent(JSON.stringify(filters))}`;
+    apiUrlPre.textContent = query;
+    statusDiv.textContent = "Consultando...";
+
+    fetch(query, {
       headers: { "xc-token": API_TOKEN }
     })
-    .then(res => res.json())
-    .then(json => {
-      console.log("📦 Datos recibidos:", json);
+    .then(res => {
+      statusDiv.innerHTML = `📄 Status: ${res.status}`;
+      return res.json();
+    })
+    .then(data => {
+      console.log("📦 Datos recibidos:", data);
 
-      const container = document.getElementById("resultado");
-
-      if (json.list && json.list.length > 0) {
-        const id = json.list[0].id;
-        container.innerHTML = `
-          <p class="ok">✅ TAG encontrado</p>
-          <button onclick="location.href='ficha.html?id=${id}'">Ver ficha</button>
+      if (Array.isArray(data.list) && data.list.length > 0) {
+        resultDiv.innerHTML = "<span class='status-ok'>✅ TAG encontrado</span>";
+        botonesDiv.innerHTML = `
+          <button onclick="verFicha('${tag}')">Ver ficha</button>
         `;
       } else {
-        container.innerHTML = `
-          <p class="err">❌ TAG no encontrado</p>
-          <button onclick="location.href='index.html'">Ir al registro</button>
+        resultDiv.innerHTML = "<span class='status-error'>❌ TAG no encontrado</span>";
+        botonesDiv.innerHTML = `
+          <button onclick="irRegistro('${tag}')">Ir al registro</button>
         `;
       }
     })
     .catch(err => {
-      document.getElementById("resultado").innerHTML = `
-        <p class="err">⚠️ Error consultando la API</p>
-        <pre>${err.message}</pre>
-      `;
+      statusDiv.innerHTML = "<span class='status-error'>⚠️ Error consultando la API</span>";
+      console.error("Error en fetch:", err);
     });
+
+    function verFicha(tag) {
+      window.location.href = `ficha.html?tag=${tag}`;
+    }
+
+    function irRegistro(tag) {
+      window.location.href = `index.html?tag=${tag}`;
+    }
   </script>
 </body>
 </html>
+
