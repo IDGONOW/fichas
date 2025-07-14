@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Verificando TAG...</title>
+  <title>Verificador Debug Final</title>
   <style>
     body {
       font-family: sans-serif;
@@ -12,25 +12,38 @@
     }
     .box {
       background: white;
-      padding: 1.5rem;
+      padding: 2rem;
       border-radius: 10px;
-      max-width: 500px;
+      max-width: 600px;
       margin: auto;
       box-shadow: 0 0 10px #ccc;
     }
     code {
-      background: #eee;
-      padding: 2px 4px;
-      border-radius: 4px;
       display: block;
-      margin: 1rem 0;
+      background: #eee;
+      margin: 10px auto;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: left;
+      white-space: pre-wrap;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 16px;
+      background: #007b8f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="box">
     <h2>🔍 Verificando TAG...</h2>
-    <div id="log">Cargando...</div>
+    <div id="log">Iniciando...</div>
+    <div id="actions"></div>
   </div>
 
   <script>
@@ -39,6 +52,7 @@
     const TABLE_ID = "m340oj04ihz4wlu";
     const BASE_URL = "https://idgonow.up.railway.app";
     const logDiv = document.getElementById("log");
+    const actions = document.getElementById("actions");
 
     function log(msg) {
       console.log(msg);
@@ -56,29 +70,24 @@
         headers: { "xc-token": API_TOKEN }
       })
       .then(res => {
-        log("🔁 Respuesta HTTP: " + res.status);
+        log("🔁 Código de estado HTTP: " + res.status);
         return res.json();
       })
       .then(data => {
-        log("📨 Respuesta JSON: " + JSON.stringify(data));
-        const records = Array.isArray(data.list) ? data.list : data;
+        log("📨 JSON recibido:
+" + JSON.stringify(data, null, 2));
+        const records = Array.isArray(data.list) ? data.list : [];
         if (records.length > 0) {
-          log("✅ TAG encontrado. Redirigiendo a ficha...");
-          setTimeout(() => {
-            location.href = `ficha.html?tag=${encodeURIComponent(tag)}`;
-          }, 1500);
+          log("✅ TAG encontrado");
+          actions.innerHTML = `<button onclick="location.href='ficha.html?tag=${tag}'">Ir a ficha</button>`;
         } else {
-          log("❌ TAG no encontrado. Redirigiendo a registro...");
-          setTimeout(() => {
-            location.href = `index.html`;
-          }, 1500);
+          log("❌ TAG no encontrado");
+          actions.innerHTML = `<button onclick="location.href='index.html'">Ir al registro</button>`;
         }
       })
       .catch(err => {
         log("❌ Error en consulta: " + err);
-        setTimeout(() => {
-          location.href = `index.html`;
-        }, 1500);
+        actions.innerHTML = `<button onclick="location.href='index.html'">Ir al registro</button>`;
       });
     }
   </script>
