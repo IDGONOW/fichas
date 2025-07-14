@@ -1,65 +1,110 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registro de mascota</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha | IDGoNow</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #f2f2f2;
-      text-align: center;
-      padding: 2rem;
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    .card {
+    .container {
       background: white;
-      max-width: 500px;
-      margin: auto;
+      max-width: 480px;
+      width: 100%;
       border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      box-shadow: 0 0 12px rgba(0,0,0,0.08);
     }
-    .logo img {
-      width: 120px;
-      margin-bottom: 1rem;
-    }
+    .logo img { width: 120px; margin-bottom: 1rem; }
     .titulo {
-      font-size: 1.3rem;
+      font-size: 20px;
       font-weight: bold;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
     }
-    .descripcion {
-      font-size: 14px;
-      margin-bottom: 1.2rem;
+    .foto-circular {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #ddd;
+      display: block;
+      margin: 0 auto 1rem;
     }
-    button {
-      padding: 0.8rem 1.5rem;
+    .info, .contacto {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+    .info { background: #f3f3f3; }
+    .contacto {
       background: #007b8f;
       color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
+    }
+    .contacto p, .info p {
+      margin: 0.4rem 0;
+      font-size: 15px;
     }
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="container">
     <div class="logo"><img src="https://i.imgur.com/r6g9Rud.png" alt="Logo"></div>
-    <div class="titulo">Registro de mascota</div>
-    <div class="descripcion">
-      Ingresa el código que aparece en el TAG físico<br>
-      (por ejemplo: <strong>ID000123</strong>) al momento de llenar el formulario.
-    </div>
-    <button onclick="irFormulario()">Ir al formulario</button>
+    <div class="titulo" id="titulo">Cargando...</div>
+    <img src="" id="foto" class="foto-circular" alt="Foto"/>
+    <div class="info" id="info"></div>
+    <div class="contacto" id="contacto"></div>
   </div>
 
   <script>
-    function irFormulario() {
-      const tag = new URLSearchParams(window.location.search).get("tag") || "";
-      const formUrl = "https://idgonow.up.railway.app/dashboard/#/nc/form/a12cb691-2808-47c9-bfcc-b1eebc909385";
-      window.open(formUrl, "_blank");
-    }
+    const params = new URLSearchParams(window.location.search);
+    const tag = params.get("tag");
+    const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+    const TABLE_ID = "m340oj04ihz4wlu";
+    const API_BASE = "https://idgonow.up.railway.app/api/v2";
+    const apiUrl = `${API_BASE}/tables/${TABLE_ID}/records?filters={"tag":{"_eq":"${tag}"}}`;
+
+    fetch(apiUrl, {
+      headers: { "xc-token": API_TOKEN }
+    })
+    .then(res => res.json())
+    .then(json => {
+      if (!json.list || json.list.length === 0) {
+        document.getElementById("titulo").innerText = "Tag no encontrado";
+        return;
+      }
+
+      const data = json.list[0].fields;
+      document.getElementById("titulo").innerText = "Hola, soy " + (data["Nombre"] || "");
+      document.getElementById("foto").src = Array.isArray(data["Foto"]) && data["Foto"][0]?.path
+        ? `https://idgonow.up.railway.app/${data["Foto"][0].path}`
+        : "";
+
+      const info = document.getElementById("info");
+      const contacto = document.getElementById("contacto");
+
+      function addLine(key, label, target) {
+        if (data[key]) {
+          target.innerHTML += `<p><strong>${label}:</strong> ${data[key]}</p>`;
+        }
+      }
+
+      addLine("Edad", "Edad", info);
+      addLine("Tipo de mascota", "Tipo", info);
+      addLine("Raza y características", "Raza", info);
+      addLine("Información médica o datos útiles", "Información médica", info);
+
+      addLine("Nombre del contacto", "Contacto", contacto);
+      addLine("Teléfono de contacto", "Teléfono", contacto);
+      addLine("Correo de contacto", "Correo", contacto);
+    });
   </script>
 </body>
 </html>
