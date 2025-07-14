@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Depuración TAG</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      text-align: center;
+      padding: 2rem;
+    }
+    .resultado {
+      background: #fff;
+      border: 1px solid #ccc;
+      display: inline-block;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 400px;
+    }
+    .ok { color: green; }
+    .fail { color: red; }
+    .url { font-size: 0.9rem; color: #666; word-break: break-all; }
+    button {
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      background: #007b8f;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="resultado" id="resultado">
+    <h3>🔍 Verificando el código...</h3>
+  </div>
+
+  <script>
+    const tag = new URLSearchParams(window.location.search).get("tag");
+    const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+    const TABLE_ID = "m340oj04ihz4wlu";
+    const BASE_URL = "https://idgonow.up.railway.app";
+    const resultado = document.getElementById("resultado");
+
+    if (!tag) {
+      resultado.innerHTML = "<h3 class='fail'>❌ No se especificó ningún tag.</h3>";
+    } else {
+      const url = BASE_URL + "/api/v2/tables/" + TABLE_ID + "/records?where=tag,eq," + encodeURIComponent(tag);
+      resultado.innerHTML = "<p>Consultando:</p><p class='url'>" + url + "</p>";
+
+      fetch(url, {
+        headers: { "xc-token": API_TOKEN }
+      })
+      .then(res => {
+        resultado.innerHTML += "<p>📡 Status: " + res.status + "</p>";
+        return res.json();
+      })
+      .then(data => {
+        console.log("📦 Datos recibidos:", data);
+        if (data.records && data.records.length > 0) {
+          resultado.innerHTML += "<p class='ok'>✅ TAG encontrado</p>";
+          resultado.innerHTML += `<button onclick="location.href='ficha.html?tag=${tag}'">Ver ficha</button>`;
+        } else {
+          resultado.innerHTML += "<p class='fail'>❌ TAG no encontrado</p>";
+          resultado.innerHTML += `<button onclick="location.href='index.html'">Ir al registro</button>`;
+        }
+      })
+      .catch(err => {
+        console.error("❌ Error al consultar:", err);
+        resultado.innerHTML += "<p class='fail'>❌ Error de red o API</p>";
+      });
+    }
+  </script>
+</body>
+</html>
