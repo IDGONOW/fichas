@@ -1,35 +1,50 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="UTF-8">
   <title>IDGoNow | Registro</title>
-
-
-
-
-
-
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const params = new URLSearchParams(window.location.search);
-    const tag = params.get("tag");
-    if (tag) {
-      document.getElementById("registroBtn").style.display = "block";
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f1f6fa;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
-  });
-</script>
-
-
-
-
-
-
-
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+    .logo img {
+      width: 140px;
+      margin-bottom: 1rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 1rem 1.5rem;
+      background: #007b8f;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+    }
+  </style>
 </head>
 <body>
-  <!-- Contenido original aquí -->
+  <div class="card">
+    <div class="logo">
+      <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow">
+    </div>
+    <h2>Registro de mascota</h2>
+    <p>Ingresa el código que aparece en el TAG físico (por ejemplo: <strong>ID000123</strong>) al momento de llenar el formulario.</p>
+    <a class="btn" href="https://idgonow.up.railway.app/dashboard/#/nc/form/a12cb691-2808-47c9-bfcc-b1eebc909385" target="_blank">Ir al formulario</a>
+  </div>
 </body>
 </html>
