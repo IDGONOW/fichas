@@ -1,27 +1,48 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><title>Verificando...</title></head>
-<body><script>
-  const params = new URLSearchParams(window.location.search);
-  const tag = params.get("tag");
-  if (!tag) {
-    document.body.innerHTML = "<h3 style='color:red'>❌ No se especificó ningún tag.</h3>";
-  } else {
-    fetch("https://idgonow.up.railway.app/api/v2/tables/m340oj04ihz4wlu/records?where=tag,eq," + tag, {
-      headers: { "xc-token": "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy" }
-    })
-    .then(r => r.json())
-    .then(d => {
-      if (d.records && d.records.length > 0) {
-        location.href = "ficha.html?tag=" + tag;
-      } else {
-        location.href = "index.html";
-      }
-    })
-    .catch(err => {
-      document.body.innerHTML = "<h3 style='color:red'>❌ Error en la verificación del tag.</h3>";
-      console.error(err);
-    });
-  }
-</script></body>
+<head>
+  <meta charset="UTF-8">
+  <title>Verificando TAG...</title>
+</head>
+<body>
+  <p style="text-align:center;font-family:sans-serif">🔍 Verificando el código, por favor espera...</p>
+  <script>
+    const tag = new URLSearchParams(window.location.search).get("tag");
+    const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+    const TABLE_ID = "m340oj04ihz4wlu";
+    const BASE_URL = "https://idgonow.up.railway.app";
+
+    if (!tag) {
+      console.warn("🚫 No se especificó ningún tag en la URL.");
+      document.body.innerHTML = "<h3 style='color:red; text-align:center'>❌ No se especificó ningún tag.</h3>";
+    } else {
+      const url = BASE_URL + "/api/v2/tables/" + TABLE_ID + "/records?where=tag,eq," + encodeURIComponent(tag);
+      console.log("🔍 Consultando NocoDB con URL:", url);
+
+      fetch(url, {
+        headers: {
+          "xc-token": API_TOKEN
+        }
+      })
+      .then(res => {
+        console.log("📡 Respuesta recibida con status:", res.status);
+        return res.json();
+      })
+      .then(data => {
+        console.log("📦 Datos recibidos:", data);
+        if (data.records && data.records.length > 0) {
+          console.log("✅ TAG encontrado, redirigiendo a ficha.html");
+          location.href = "ficha.html?tag=" + encodeURIComponent(tag);
+        } else {
+          console.warn("❌ TAG no encontrado, redirigiendo a index.html");
+          location.href = "index.html";
+        }
+      })
+      .catch(err => {
+        console.error("❌ Error al consultar NocoDB:", err);
+        document.body.innerHTML = "<h3 style='color:red;text-align:center'>❌ Error al consultar el TAG.</h3>";
+      });
+    }
+  </script>
+</body>
 </html>
