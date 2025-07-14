@@ -1,95 +1,117 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Verificador Debug Final</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verificador TAG | IDGoNow</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f0f0f0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      margin: 0;
       padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       text-align: center;
+      max-width: 500px;
+      width: 100%;
     }
-    .box {
-      background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      max-width: 600px;
-      margin: auto;
-      box-shadow: 0 0 10px #ccc;
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
     }
-    code {
-      display: block;
-      background: #eee;
-      margin: 10px auto;
-      padding: 10px;
-      border-radius: 6px;
-      text-align: left;
-      white-space: pre-wrap;
+
+    p {
+      font-size: 1rem;
+      margin: 0.5rem 0;
     }
-    button {
+
+    .error {
+      color: red;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+
+    .btn {
+      display: inline-block;
       margin-top: 1rem;
-      padding: 0.6rem 1.2rem;
-      font-size: 16px;
-      background: #007b8f;
+      background-color: #007b8f;
       color: white;
+      padding: 0.7rem 1.2rem;
       border: none;
       border-radius: 6px;
-      cursor: pointer;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>🔍 Verificando TAG...</h2>
-    <div id="log">Iniciando...</div>
-    <div id="actions"></div>
+  <div class="card" id="contenedor">
+    <h1>🔍 Verificando TAG...</h1>
+    <p>Iniciando...</p>
   </div>
 
   <script>
-    const tag = new URLSearchParams(window.location.search).get("tag");
-    const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
-    const TABLE_ID = "m340oj04ihz4wlu";
-    const BASE_URL = "https://idgonow.up.railway.app";
-    const logDiv = document.getElementById("log");
-    const actions = document.getElementById("actions");
+    const contenedor = document.getElementById("contenedor");
+    const params = new URLSearchParams(window.location.search);
+    const tag = params.get("tag");
 
-    function log(msg) {
-      console.log(msg);
-      logDiv.innerHTML += "<code>" + msg + "</code>";
-    }
+    const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+    const BASE_URL = "https://idgonow.up.railway.app/api/v2";
+    const TABLE_ID = "m340oj04ihz4wlu";
 
     if (!tag) {
-      log("❌ No se especificó ningún tag.");
-    } else {
-      log("📦 TAG recibido: " + tag);
-      const API_URL = `${BASE_URL}/api/v2/tables/${TABLE_ID}/records?filter[where][tag]=${encodeURIComponent(tag)}`;
-      log("📡 Consultando: " + API_URL);
-
-      fetch(API_URL, {
-        headers: { "xc-token": API_TOKEN }
-      })
-      .then(res => {
-        log("🔁 Código de estado HTTP: " + res.status);
-        return res.json();
-      })
-      .then(data => {
-        log("📨 JSON recibido:
-" + JSON.stringify(data, null, 2));
-        const records = Array.isArray(data.list) ? data.list : [];
-        if (records.length > 0) {
-          log("✅ TAG encontrado");
-          actions.innerHTML = `<button onclick="location.href='ficha.html?tag=${tag}'">Ir a ficha</button>`;
-        } else {
-          log("❌ TAG no encontrado");
-          actions.innerHTML = `<button onclick="location.href='index.html'">Ir al registro</button>`;
-        }
-      })
-      .catch(err => {
-        log("❌ Error en consulta: " + err);
-        actions.innerHTML = `<button onclick="location.href='index.html'">Ir al registro</button>`;
-      });
+      contenedor.innerHTML = `<h1>❌ No se especificó ningún tag.</h1>`;
+      throw new Error("Tag faltante en la URL");
     }
+
+    const query = `${BASE_URL}/tables/${TABLE_ID}/records?where=tag,eq,"${tag}"`;
+    console.log("Consultando API:", query);
+
+    fetch(query, {
+      headers: {
+        "xc-token": API_TOKEN
+      }
+    })
+    .then(res => {
+      contenedor.innerHTML = `
+        <h1>🔍 Consultando:</h1>
+        <p>${query}</p>
+        <p>🧾 Status: ${res.status}</p>
+      `;
+      return res.json().then(data => ({ status: res.status, data }));
+    })
+    .then(({ status, data }) => {
+      console.log("📦 Datos recibidos:", data);
+      if (status === 200 && data.records && data.records.length > 0) {
+        const id = data.records[0].id;
+        contenedor.innerHTML += `<p class="success">✅ TAG encontrado. Redirigiendo a ficha.html...</p>`;
+        setTimeout(() => {
+          window.location.href = `ficha.html?id=${id}`;
+        }, 2000);
+      } else {
+        contenedor.innerHTML += `<p class="error">❌ TAG no encontrado</p>
+          <a class="btn" href="index.html">Ir al registro</a>`;
+      }
+    })
+    .catch(err => {
+      console.error("Error en la verificación:", err);
+      contenedor.innerHTML = `<h1>🚨 Error de conexión</h1><p>${err.message}</p>`;
+    });
   </script>
 </body>
 </html>
