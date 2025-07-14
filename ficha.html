@@ -1,82 +1,61 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>IDGoNow | Ficha</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 1rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .container {
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 12px;
-      max-width: 440px;
-      width: 100%;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      text-align: center;
-    }
-    .logo img {
-      width: 140px;
-    }
-    .foto-circular {
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin: 1rem auto;
-      border: 4px solid #ddd;
-    }
-  </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow">
-    </div>
-    <h2 id="titulo">Cargando...</h2>
-    <img src="" id="foto" class="foto-circular" alt="Foto">
-    <div id="datos"></div>
+  <div id="contenido" style="max-width:500px; margin:20px auto; text-align:center;">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" style="width:140px;" />
+    <h2 id="titulo">Cargando ficha...</h2>
+    <img id="foto" style="width:160px; height:160px; border-radius:50%; object-fit:cover;" />
+    <div id="infoCentral"></div>
+    <div id="datosContacto"></div>
   </div>
-
   <script>
     const params = new URLSearchParams(window.location.search);
     const tag = params.get("tag");
-    const API_URL = "https://idgonow.up.railway.app/api/v2/tables/m340oj04ihz4wlu/records?where=tag,eq,{tag}";
-    const TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+    const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+    const TABLE_ID = "m340oj04ihz4wlu";
+    const BASE_URL = "https://idgonow.up.railway.app";
 
     if (!tag) {
-      document.getElementById("titulo").innerText = "Tag no especificado";
+      document.getElementById("titulo").innerText = "❌ Tag no especificado";
     } else {
-      fetch(API_URL.replace("{tag}", tag), {
-        headers: { "xc-token": TOKEN }
+      fetch(`${BASE_URL}/api/v2/tables/${TABLE_ID}/records?filter[where][tag]=${tag}`, {
+        headers: { "xc-token": API_TOKEN }
       })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.records || !data.records.length) {
-          document.getElementById("titulo").innerText = "Tag no encontrado";
+      .then(res => res.json().then(data => ({ status: res.status, data })))
+      .then(({ status, data }) => {
+        if (status !== 200 || data.list.length === 0) {
+          document.getElementById("titulo").innerText = "❌ Tag no encontrado";
           return;
         }
-        const record = data.records[0];
-        const f = record.fields;
-        document.getElementById("titulo").innerText = "Hola, soy " + (f.Nombre || "");
-        const foto = f.Foto?.[0]?.path;
-        if (foto) {
-          document.getElementById("foto").src = "https://idgonow.up.railway.app/" + foto;
+        const record = data.list[0];
+        document.getElementById("titulo").innerText = "Hola, soy " + (record.Nombre || "");
+        const foto = record.Foto && Array.isArray(record.Foto) && record.Foto[0].path
+          ? `${BASE_URL}/${record.Foto[0].path}` : "";
+        if (foto) document.getElementById("foto").src = foto;
+
+        const infoCentral = document.getElementById("infoCentral");
+        const contacto = document.getElementById("datosContacto");
+
+        function agregarLinea(titulo, valor, contenedor) {
+          if (valor) contenedor.innerHTML += `<p><strong>${titulo}:</strong> ${valor}</p>`;
         }
-        const datos = document.getElementById("datos");
-        datos.innerHTML = `
-          <p><strong>Edad:</strong> ${f.Edad || ""}</p>
-          <p><strong>Tipo:</strong> ${f["Tipo de mascota"] || ""}</p>
-          <p><strong>Contacto:</strong> ${f["Teléfono de contacto"] || ""}</p>
-        `;
+
+        agregarLinea("Edad", record["Edad"], infoCentral);
+        agregarLinea("Tipo", record["Tipo de mascota"], infoCentral);
+        agregarLinea("Raza", record["Raza y características"], infoCentral);
+        agregarLinea("Información médica o datos útiles", record["Información médica o datos útiles"], infoCentral);
+        agregarLinea("Nombre", record["Nombre del contacto"], contacto);
+        agregarLinea("Teléfono", record["Teléfono de contacto"], contacto);
+        agregarLinea("Correo", record["Correo de contacto"], contacto);
+      })
+      .catch(() => {
+        document.getElementById("titulo").innerText = "❌ Error al cargar la ficha";
       });
     }
   </script>
