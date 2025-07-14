@@ -2,39 +2,35 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Depuración TAG</title>
+  <title>Verificando TAG...</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #f9f9f9;
+      background: #f0f0f0;
+      padding: 2rem;
       text-align: center;
-      padding: 2rem;
     }
-    .resultado {
-      background: #fff;
-      border: 1px solid #ccc;
-      display: inline-block;
-      padding: 2rem;
-      border-radius: 8px;
-      max-width: 400px;
+    .box {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px #ccc;
     }
-    .ok { color: green; }
-    .fail { color: red; }
-    .url { font-size: 0.9rem; color: #666; word-break: break-all; }
-    button {
-      margin-top: 1rem;
-      padding: 0.6rem 1.2rem;
-      border: none;
-      background: #007b8f;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
+    code {
+      background: #eee;
+      padding: 2px 4px;
+      border-radius: 4px;
+      display: block;
+      margin: 1rem 0;
     }
   </style>
 </head>
 <body>
-  <div class="resultado" id="resultado">
-    <h3>🔍 Verificando el código...</h3>
+  <div class="box">
+    <h2>🔍 Verificando TAG...</h2>
+    <div id="log">Cargando...</div>
   </div>
 
   <script>
@@ -42,34 +38,47 @@
     const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
     const TABLE_ID = "m340oj04ihz4wlu";
     const BASE_URL = "https://idgonow.up.railway.app";
-    const resultado = document.getElementById("resultado");
+    const logDiv = document.getElementById("log");
+
+    function log(msg) {
+      console.log(msg);
+      logDiv.innerHTML += "<code>" + msg + "</code>";
+    }
 
     if (!tag) {
-      resultado.innerHTML = "<h3 class='fail'>❌ No se especificó ningún tag.</h3>";
+      log("❌ No se especificó ningún tag.");
     } else {
-      const url = BASE_URL + "/api/v2/tables/" + TABLE_ID + "/records?where=tag,eq," + encodeURIComponent(tag);
-      resultado.innerHTML = "<p>Consultando:</p><p class='url'>" + url + "</p>";
+      log("📦 TAG recibido: " + tag);
+      const API_URL = `${BASE_URL}/api/v2/tables/${TABLE_ID}/records?filter[where][tag]=${encodeURIComponent(tag)}`;
+      log("📡 Consultando: " + API_URL);
 
-      fetch(url, {
+      fetch(API_URL, {
         headers: { "xc-token": API_TOKEN }
       })
       .then(res => {
-        resultado.innerHTML += "<p>📡 Status: " + res.status + "</p>";
+        log("🔁 Respuesta HTTP: " + res.status);
         return res.json();
       })
       .then(data => {
-        console.log("📦 Datos recibidos:", data);
-        if (data.records && data.records.length > 0) {
-          resultado.innerHTML += "<p class='ok'>✅ TAG encontrado</p>";
-          resultado.innerHTML += `<button onclick="location.href='ficha.html?tag=${tag}'">Ver ficha</button>`;
+        log("📨 Respuesta JSON: " + JSON.stringify(data));
+        const records = Array.isArray(data.list) ? data.list : data;
+        if (records.length > 0) {
+          log("✅ TAG encontrado. Redirigiendo a ficha...");
+          setTimeout(() => {
+            location.href = `ficha.html?tag=${encodeURIComponent(tag)}`;
+          }, 1500);
         } else {
-          resultado.innerHTML += "<p class='fail'>❌ TAG no encontrado</p>";
-          resultado.innerHTML += `<button onclick="location.href='index.html'">Ir al registro</button>`;
+          log("❌ TAG no encontrado. Redirigiendo a registro...");
+          setTimeout(() => {
+            location.href = `index.html`;
+          }, 1500);
         }
       })
       .catch(err => {
-        console.error("❌ Error al consultar:", err);
-        resultado.innerHTML += "<p class='fail'>❌ Error de red o API</p>";
+        log("❌ Error en consulta: " + err);
+        setTimeout(() => {
+          location.href = `index.html`;
+        }, 1500);
       });
     }
   </script>
