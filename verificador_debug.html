@@ -66,8 +66,7 @@
     if (!tag) {
       resultadoDiv.innerHTML = "<div class='error'>❌ No se especificó ningún TAG en la URL.</div>";
     } else {
-      const filtro = encodeURIComponent(JSON.stringify({ tag: tag }));
-      const query = `${API_BASE}/tables/${TABLE_ID}/records?filter=${filtro}`;
+      const query = `${API_BASE}/tables/${TABLE_ID}/records?filter[where][tag]=${encodeURIComponent(tag)}`;
       infoDiv.innerHTML = `<code>📡 ${query}</code>`;
 
       fetch(query, {
@@ -76,10 +75,10 @@
       .then(res => res.json())
       .then(data => {
         console.log("📦 Datos recibidos:", data);
-        const registros = data.list || [];
-        const coincidenciaExacta = registros.some(r => r.tag === tag);
+        const registros = Array.isArray(data.list) ? data.list : [];
+        const coincidencia = registros.some(r => r.tag === tag);
 
-        if (coincidenciaExacta) {
+        if (coincidencia) {
           resultadoDiv.innerHTML = `<div class='ok'>✅ TAG encontrado</div>`;
           accionesDiv.innerHTML = `<a class="btn" href="ficha.html?tag=${tag}">Ver ficha</a>`;
         } else {
