@@ -3,66 +3,60 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Verificador TAG - Debug</title>
+  <title>Verificador de TAG | IDGoNow</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f4f4f4;
+      background: #f2f2f2;
       margin: 0;
       padding: 2rem;
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-
     .card {
       background: white;
       padding: 2rem;
       border-radius: 12px;
-      max-width: 600px;
-      margin: auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 520px;
+      width: 100%;
     }
-
-    .card h2 {
-      margin-top: 0;
-    }
-
-    code {
-      display: block;
-      background: #eee;
-      padding: 0.5rem;
-      margin: 1rem auto;
-      word-break: break-all;
-      max-width: 90%;
-      overflow-x: auto;
-    }
-
     .status {
-      font-size: 1.1rem;
-      margin: 0.5rem 0;
+      margin-top: 1rem;
+      font-size: 18px;
     }
-
-    .btn {
-      display: inline-block;
+    .status.ok {
+      color: green;
+    }
+    .status.error {
+      color: red;
+    }
+    code {
+      background: #eee;
+      padding: 0.4rem;
+      border-radius: 6px;
+      display: block;
+      word-break: break-all;
+      margin: 1rem 0;
+    }
+    button {
+      padding: 0.7rem 1.2rem;
       background: #007b8f;
       color: white;
-      padding: 0.7rem 1.2rem;
+      border: none;
       border-radius: 6px;
-      text-decoration: none;
-      margin-top: 1rem;
+      cursor: pointer;
       font-weight: bold;
     }
-
-    .success { color: green; }
-    .error { color: red; }
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="card" id="contenido">
     <h2>🔍 Verificando TAG...</h2>
-    <p id="estado">Iniciando...</p>
-    <code id="consulta"></code>
-    <p class="status" id="status"></p>
-    <div id="resultado"></div>
+    <p>Iniciando...</p>
   </div>
 
   <script>
@@ -70,35 +64,60 @@
     const tag = params.get("tag");
 
     const API_URL = "https://idgonow.up.railway.app/api/v2/tables/m340oj04ihz4wlu/records";
-    const TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
-    const query = `${API_URL}?filters=${encodeURIComponent(JSON.stringify({ tag: { _eq: tag } }))}`;
+    const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
+    const contenedor = document.getElementById("contenido");
 
-    document.getElementById("consulta").innerText = query;
+    if (!tag) {
+      contenedor.innerHTML = `<h2>❌ No se especificó ningún tag.</h2>`;
+    } else {
+      const filtro = { tag: { _eq: tag } };
+      const urlConFiltro = `${API_URL}?filters=${encodeURIComponent(JSON.stringify(filtro))}`;
 
-    fetch(query, {
-      headers: { "xc-token": TOKEN }
-    })
-    .then(res => {
-      document.getElementById("status").innerText = `📄 Status: ${res.status}`;
-      return res.json();
-    })
-    .then(data => {
-      console.log("📦 Datos recibidos:", data);
-      const list = data.list || [];
-      const encontrado = list.some(item => item.fields?.tag === tag);
+      console.log("📡 Consultando:", urlConFiltro);
 
-      if (encontrado) {
-        document.getElementById("estado").innerHTML = `<span class="success">✅ TAG encontrado</span>`;
-        document.getElementById("resultado").innerHTML = `<a class="btn" href="ficha.html?tag=${tag}">Ver ficha</a>`;
-      } else {
-        document.getElementById("estado").innerHTML = `<span class="error">❌ TAG no encontrado</span>`;
-        document.getElementById("resultado").innerHTML = `<a class="btn" href="index.html">Ir al registro</a>`;
-      }
-    })
-    .catch(err => {
-      console.error("⛔ Error en la verificación:", err);
-      document.getElementById("estado").innerHTML = `<span class="error">⛔ Error de red</span>`;
-    });
+      fetch(urlConFiltro, {
+        headers: {
+          "xc-token": API_TOKEN
+        }
+      })
+      .then(res => {
+        console.log("📥 Respuesta HTTP:", res.status);
+        return res.json().then(data => ({ status: res.status, body: data }));
+      })
+      .then(({ status, body }) => {
+        console.log("📦 Datos recibidos:", body);
+
+        let existe = Array.isArray(body.list) && body.list.length > 0;
+
+        if (existe) {
+          const record = body.list[0];
+          const id = record.id;
+
+          contenedor.innerHTML = `
+            <h2>🔍 Verificando TAG...</h2>
+            <code>${urlConFiltro}</code>
+            <p class="status ok">📄 Status: ${status}</p>
+            <p class="status ok">✅ TAG encontrado</p>
+            <button onclick="window.location.href='ficha.html?id=${id}'">Ver ficha</button>
+          `;
+        } else {
+          contenedor.innerHTML = `
+            <h2>🔍 Verificando TAG...</h2>
+            <code>${urlConFiltro}</code>
+            <p class="status ok">📄 Status: ${status}</p>
+            <p class="status error">❌ TAG no encontrado</p>
+            <button onclick="window.location.href='index.html'">Ir al registro</button>
+          `;
+        }
+      })
+      .catch(err => {
+        console.error("❌ Error en la consulta:", err);
+        contenedor.innerHTML = `
+          <h2>❌ Error de red o API</h2>
+          <p>${err.message}</p>
+        `;
+      });
+    }
   </script>
 </body>
 </html>
