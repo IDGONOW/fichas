@@ -66,7 +66,8 @@
     if (!tag) {
       resultadoDiv.innerHTML = "<div class='error'>❌ No se especificó ningún TAG en la URL.</div>";
     } else {
-      const query = `${API_BASE}/tables/${TABLE_ID}/records?filter[where][tag]=${tag}`;
+      const filtro = encodeURIComponent(JSON.stringify({ where: { tag: tag } }));
+      const query = `${API_BASE}/tables/${TABLE_ID}/records?filter=${filtro}`;
       infoDiv.innerHTML = `<code>📡 ${query}</code>`;
 
       fetch(query, {
