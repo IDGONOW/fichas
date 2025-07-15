@@ -2,85 +2,69 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IDGoNow | Registro de Mascota</title>
+  <title>IDGoNow | Registro de mascota</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f0f3f7;
+      background: #f2f6fa;
       margin: 0;
       padding: 2rem;
       display: flex;
-      align-items: center;
       justify-content: center;
-      height: 100vh;
+      align-items: center;
+      min-height: 100vh;
     }
 
-    .card {
-      background: #fff;
-      padding: 2rem;
+    .box {
+      background: white;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 2rem;
+      max-width: 480px;
       text-align: center;
-      max-width: 420px;
-      width: 100%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
 
-    .card img {
+    img {
       width: 120px;
       margin-bottom: 1rem;
     }
 
-    .card h2 {
+    h1 {
+      font-size: 1.4rem;
       color: #007b8f;
-      margin-bottom: 0.5rem;
     }
 
-    .card p {
-      color: #333;
-      margin-bottom: 1.2rem;
+    p {
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
     }
 
-    .card button {
-      background-color: #007b8f;
+    a.button {
+      display: inline-block;
+      background: #007b8f;
       color: white;
-      border: none;
-      padding: 0.9rem 1.2rem;
-      font-size: 1rem;
+      padding: 0.9rem 1.4rem;
+      text-decoration: none;
       border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .card button:hover {
-      background-color: #005e6d;
-    }
-
-    .oculto {
-      display: none;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow" />
-    <h2>Registro de mascota</h2>
-    <p>Ingresa el código que aparece en el TAG físico (por ejemplo: <strong>ID000123</strong>) al momento de llenar el formulario.</p>
-    <button id="btnRegistro">Ir al formulario</button>
+  <div class="box">
+    <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" />
+    <h1>Registro de mascota</h1>
+    <p>Ingresa el código que aparece en el TAG físico<br><strong>(por ejemplo: ID000123)</strong><br>al momento de llenar el formulario.</p>
+    <a id="btnFormulario" href="https://idgonow.up.railway.app/dashboard/#/nc/form/a12cb691-2808-47c9-bfcc-b1eebc909385" class="button" target="_blank">Ir al formulario</a>
   </div>
 
   <script>
     const tag = new URLSearchParams(window.location.search).get("tag");
-    const FORM_URL = "https://idgonow.up.railway.app/dashboard/#/nc/form/a12cb691-2808-47c9-bfcc-b1eebc909385";
-
-    const btn = document.getElementById("btnRegistro");
-    btn.addEventListener("click", () => {
-      if (tag) {
-        const formTagUrl = `${FORM_URL}?prefill_tag=${encodeURIComponent(tag)}`;
-        window.location.href = formTagUrl;
-      } else {
-        window.location.href = FORM_URL;
-      }
-    });
+    if (tag) {
+      const enlace = document.getElementById("btnFormulario");
+      enlace.href += `?tag=${encodeURIComponent(tag)}`;
+    }
   </script>
 </body>
 </html>
+
