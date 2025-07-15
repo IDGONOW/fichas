@@ -80,6 +80,16 @@
           resultadoDiv.innerHTML = `<div class='ok'>✅ TAG encontrado</div>`;
           accionesDiv.innerHTML = `<a class="btn" href="ficha.html?tag=${tag}">Ver ficha</a>`;
         } else {
-          resultadoDiv.innerHTML = `<div class='error'>❌ TAG n
-
+          resultadoDiv.innerHTML = `<div class='error'>❌ TAG no encontrado</div>`;
+          accionesDiv.innerHTML = `<a class="btn" href="index.html?tag=${tag}">Registrar ahora</a>`;
+        }
+      })
+      .catch(err => {
+        resultadoDiv.innerHTML = `<div class='error'>⚠️ Error al consultar: ${err.message}</div>`;
+        console.error(err);
+      });
+    }
+  </script>
+</body>
+</html>
 
