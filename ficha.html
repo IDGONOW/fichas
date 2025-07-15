@@ -2,145 +2,86 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IDGoNow | Ficha</title>
+  <title>Ficha IDGoNow</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .container {
-      background: #fff;
-      padding: 1.5rem;
+    body { font-family: sans-serif; background: #f2f2f2; padding: 2rem; display: flex; justify-content: center; }
+    .card {
+      background: white;
       border-radius: 12px;
-      max-width: 440px;
+      padding: 2rem;
       width: 100%;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    }
-    .logo { text-align: center; }
-    .logo img { width: 140px; margin-bottom: 0.5rem; }
-    .titulo { text-align: center; font-size: 1.4rem; font-weight: bold; margin-top: 0.2rem; margin-bottom: 1rem; }
-    .foto-circular {
-      width: 180px;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 50%;
-      margin: 0 auto 1rem;
-      display: block;
-      border: 4px solid #eee;
-    }
-    .info-central, .datos-contacto {
-      background: #f3f3f3;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-bottom: 1.2rem;
-    }
-    .seccion-contacto {
-      background: #007b8f;
-      color: white;
-      padding: 0.8rem 1rem;
-      border-radius: 10px 10px 0 0;
-      font-weight: bold;
-    }
-    .btns {
-      display: flex;
-      flex-direction: column;
-      gap: 0.7rem;
-    }
-    .btns a {
-      text-decoration: none;
+      max-width: 460px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
       text-align: center;
-      padding: 0.9rem;
-      border-radius: 8px;
-      font-weight: bold;
-      color: white;
-      font-size: 16px;
     }
-    .call { background-color: #1a73e8; }
-    .whatsapp { background-color: #25d366; }
+    .card img.logo { width: 100px; margin-bottom: 1rem; }
+    .foto-circular {
+      width: 140px; height: 140px; border-radius: 50%; object-fit: cover;
+      border: 4px solid #ddd; margin: 1rem auto;
+    }
+    h2 { margin-top: 0.5rem; }
+    .info, .contacto {
+      background: #f8f8f8; margin-top: 1rem; padding: 1rem; border-radius: 10px;
+      text-align: left;
+    }
+    .info p, .contacto p { margin: 0.4rem 0; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" />
-    </div>
-    <div class="titulo" id="titulo">Hola</div>
-    <img src="" alt="Foto" class="foto-circular" id="foto"/>
-    <div class="info-central" id="infoCentral">Cargando...</div>
-    <div class="seccion-contacto">📇 Datos del contacto</div>
-    <div class="datos-contacto" id="datosContacto"></div>
-    <div class="btns" id="botones"></div>
+  <div class="card">
+    <img class="logo" src="https://i.imgur.com/r6g9Rud.png" />
+    <h2 id="titulo">Cargando...</h2>
+    <img id="foto" class="foto-circular" src="" alt="Foto" />
+    <div class="info" id="info"></div>
+    <div class="contacto" id="contacto"></div>
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const tag = params.get("tag");
+    const tag = new URLSearchParams(window.location.search).get("tag");
     const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
-    const TABLE_ID = "m340oj04ihz4wlu";
+    const API_URL = `https://idgonow.up.railway.app/api/v2/tables/m340oj04ihz4wlu/records?filters=${encodeURIComponent(JSON.stringify({ tag: { _eq: tag } }))}`;
 
-    if (!tag) {
-      document.getElementById("titulo").innerText = "Tag no especificado";
-      document.getElementById("infoCentral").innerText = "";
-      throw new Error("Falta tag");
-    }
+    fetch(API_URL, {
+      headers: { "xc-token": API_TOKEN }
+    })
+    .then(res => res.json())
+    .then(data => {
+      const row = data.list[0];
+      if (!row) {
+        document.getElementById("titulo").innerText = "Tag no encontrado";
+        return;
+      }
+      document.getElementById("titulo").innerText = "Hola, soy " + (row["Nombre"] || "");
+      document.getElementById("foto").src = row["Foto"]?.[0]?.path ? `https://idgonow.up.railway.app/${row["Foto"][0].path}` : "";
 
-    const url = `https://idgonow.up.railway.app/api/v2/tables/${TABLE_ID}/records?filters=${encodeURIComponent(JSON.stringify({ tag: { _eq: tag } }))}`;
+      const info = document.getElementById("info");
+      const contacto = document.getElementById("contacto");
 
-    fetch(url, { headers: { "xc-token": API_TOKEN } })
-      .then(res => res.json())
-      .then(data => {
-        const row = data.list[0];
-        if (!row) {
-          document.getElementById("titulo").innerText = "Tag no encontrado";
-          document.getElementById("infoCentral").innerText = "";
-          return;
-        }
+      const camposInfo = {
+        "Edad": row["Edad"],
+        "Raza": row["Raza y características"],
+        "Tipo": row["Tipo de mascota"],
+        "Información médica": row["Información médica o datos útiles"]
+      };
 
-        document.getElementById("titulo").innerText = "Hola, soy " + (row["Nombre"] || "");
+      const camposContacto = {
+        "Contacto": row["Nombre del contacto"],
+        "Teléfono": row["Teléfono de contacto"],
+        "Correo": row["Correo de contacto"]
+      };
 
-        let fotoUrl = "";
-        const val = row["Foto"];
-        if (Array.isArray(val) && val[0]?.path) {
-          fotoUrl = `https://idgonow.up.railway.app/${val[0].path}`;
-        } else if (typeof val === "string" && val.startsWith("http")) {
-          fotoUrl = val;
-        }
-        if (fotoUrl) document.getElementById("foto").src = fotoUrl;
-
-        function agregarLinea(titulo, valor, contenedor) {
-          if (valor) contenedor.innerHTML += `<p><strong>${titulo}:</strong> ${valor}</p>`;
-        }
-
-        const infoCentral = document.getElementById("infoCentral");
-        const contacto = document.getElementById("datosContacto");
-
-        agregarLinea("Edad", row["Edad"], infoCentral);
-        agregarLinea("Tipo", row["Tipo de mascota"], infoCentral);
-        agregarLinea("Raza", row["Raza y características"], infoCentral);
-        agregarLinea("Información médica", row["Información médica o datos útiles"], infoCentral);
-
-        agregarLinea("Nombre", row["Nombre del contacto"], contacto);
-        agregarLinea("Teléfono", row["Teléfono de contacto"], contacto);
-        agregarLinea("Correo", row["Correo de contacto"], contacto);
-
-        const nombre = row["Nombre"] || "la mascota";
-        const tel = row["Teléfono de contacto"]?.replace(/\D/g, "");
-        const mensaje = encodeURIComponent(`Hola, he encontrado a ${nombre}, por favor comuníquese conmigo.`);
-
-        const botonesDiv = document.getElementById("botones");
-        if (tel) {
-          botonesDiv.innerHTML = `
-            <a href="tel:+51${tel}" class="call">📞 Llamar</a>
-            <a href="https://wa.me/51${tel}?text=${mensaje}" target="_blank" class="whatsapp">💬 WhatsApp</a>
-          `;
-        }
-      });
+      for (const [k, v] of Object.entries(camposInfo)) {
+        if (v) info.innerHTML += `<p><strong>${k}:</strong> ${v}</p>`;
+      }
+      for (const [k, v] of Object.entries(camposContacto)) {
+        if (v) contacto.innerHTML += `<p><strong>${k}:</strong> ${v}</p>`;
+      }
+    })
+    .catch(err => {
+      console.error("Error:", err);
+      document.getElementById("titulo").innerText = "Error al cargar ficha";
+    });
   </script>
 </body>
 </html>
+
