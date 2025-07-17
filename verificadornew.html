@@ -52,11 +52,11 @@
         const lista = Array.isArray(data.list) ? data.list : [];
 
         if (lista.length > 0) {
-          // Tag existe → redirige al formulario NocoDB para introducción manual
-          window.location.href = 'index.html';
+          // Tag existe → muestra mensaje
+          salida.innerText = `✅ El tag “${tag}” existe en la tabla.`;
         } else {
-          // Tag no existe → muestra mensaje de error
-          salida.innerText = `❌ El tag “${tag}” no existe en la tabla.`;
+          // Tag no existe → redirige al formulario de index.html
+          window.location.href = 'index.html';
         }
       } catch (err) {
         salida.innerText = 'Error al consultar la API: ' + err.message;
@@ -65,5 +65,4 @@
   </script>
 </body>
 </html>
-
 
