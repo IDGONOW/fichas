@@ -1,39 +1,71 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IDGoNow | Verificador</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verificador de Tag</title>
+  <style>
+    body { 
+      font-family: 'Segoe UI', sans-serif; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      height: 100vh; 
+      margin: 0; 
+      background: #f4f4f4; 
+      color: #333;
+    }
+    #resultado {
+      padding: 2rem; 
+      background: white; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      font-size: 1.2rem;
+    }
+  </style>
 </head>
 <body>
-  <p id="status">Verificando...</p>
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const tag = params.get("tag");
-    const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
-    const TABLE_ID = "m340oj04ihz4wlu";
-    const BASE_URL = "https://idgonow.up.railway.app";
+  <div id="resultado">Comprobando tag…</div>
 
-    if (!tag) {
-      document.getElementById("status").innerText = "❌ No se especificó ningún tag.";
-    } else {
-      fetch(`${BASE_URL}/api/v2/tables/${TABLE_ID}/records?filter[where][tag]=${tag}`, {
-        headers: { "xc-token": API_TOKEN }
-      })
-      .then(res => res.json().then(data => ({ status: res.status, data })))
-      .then(({ status, data }) => {
-        if (status === 200 && data.list.length > 0) {
-          const record = data.list[0];
-          window.location.href = `ficha.html?id=${record.id}`;
+  <script>
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const tag = params.get('tag');
+      const salida = document.getElementById('resultado');
+
+      if (!tag) {
+        salida.innerText = 'Error: no has proporcionado el parámetro “tag”.';
+        return;
+      }
+
+      // Configura estos valores según tu instancia
+      const API_TOKEN = 'HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy';
+      const TABLE_ID  = 'm340oj04ihz4wlu';
+      // Construye la URL con filtro: campo tag igual al valor
+      const API_URL = `https://idgonow.up.railway.app/api/v2/tables/${TABLE_ID}/records?filter=${encodeURIComponent(`tag,eq,${tag}`)}`;
+
+      try {
+        const res  = await fetch(API_URL, {
+          headers: { 'xc-token': API_TOKEN }
+        });
+        if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+        const data = await res.json();
+        // En v2 NocoDB devuelve { list: [...], count: N, ... }
+        const lista = Array.isArray(data.list) 
+                      ? data.list 
+                      : (Array.isArray(data) ? data : []);
+
+        if (lista.length > 0) {
+          salida.innerText = `✅ El tag “${tag}” **existe** en la tabla.`;
         } else {
-          window.location.href = `index.html?tag=${tag}`;
+          salida.innerText = `❌ El tag “${tag}” **no existe** en la tabla.`;
         }
-      })
-      .catch(err => {
-        document.getElementById("status").innerText = "❌ Error al consultar el tag.";
-      });
-    }
+      } catch (err) {
+        salida.innerText = 'Error al consultar la API: ' + err.message;
+      }
+    })();
   </script>
 </body>
 </html>
+
