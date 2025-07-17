@@ -52,10 +52,10 @@
         const lista = Array.isArray(data.list) ? data.list : [];
 
         if (lista.length > 0) {
-          // Tag existe → muestra mensaje
-          salida.innerText = `✅ El tag “${tag}” existe en la tabla.`;
+          // Tag existe → mostrar ficha
+          window.location.href = `ficha.html?tag=${encodeURIComponent(tag)}`;
         } else {
-          // Tag no existe → redirige al formulario de index.html
+          // Tag no existe → abrir formulario (index.html)
           window.location.href = 'index.html';
         }
       } catch (err) {
