@@ -1,53 +1,280 @@
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const tagParam = params.get("tag");
-  let endpoint;
-
-  if (tagParam) {
-    // Filtrar por tag usando v2 “where”
-    endpoint = `https://idgonow.up.railway.app/api/v2/tables/m340oj04ihz4wlu/records?where=${encodeURIComponent(`(tag,eq,${tagParam})`)}`;
-  } else {
-    // Caída a ID numérico (tu lógica original)
-    let recordId = params.get("id");
-    if (recordId && recordId.startsWith("ID")) {
-      recordId = parseInt(recordId.replace("ID", "").replace(/^0+/, ""));
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IDGoNow | Ficha</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    endpoint = `https://idgonow.up.railway.app/api/v2/tables/m340oj04ihz4wlu/records/${recordId}`;
-  }
+    .container {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .logo {
+      text-align: center;
+    }
+    .logo img {
+      width: 140px;
+      margin-bottom: 0.5rem;
+    }
+    .titulo {
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-top: 0.2rem;
+      margin-bottom: 1rem;
+    }
+    .foto-circular {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      display: block;
+      border: 4px solid #eee;
+    }
+    .info-central {
+      background: #f3f3f3;
+      padding: 1rem;
+      text-align: center;
+      border-radius: 10px;
+      margin-bottom: 1.2rem;
+    }
+    .info-central p {
+      margin: 0.3rem 0;
+      font-size: 16px;
+      text-align: left;
+    }
+    .seccion-contacto {
+      background: #007b8f;
+      color: white;
+      padding: 0.8rem 1rem;
+      border-radius: 10px 10px 0 0;
+      font-weight: bold;
+    }
+    .datos-contacto {
+      border: 1px solid #007b8f;
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .datos-contacto p {
+      margin: 0.3rem 0;
+      font-size: 15px;
+    }
+    .btns {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .btns a {
+      text-decoration: none;
+      text-align: center;
+      padding: 0.9rem;
+      border-radius: 8px;
+      font-weight: bold;
+      color: white;
+      font-size: 16px;
+    }
+    .call { background-color: #1a73e8; }
+    .whatsapp { background-color: #25d366; }
+    .ubicacion { background-color: #fbbc05; color: #222; }
+    #ubicacionModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #0008;
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    #ubicacionModal .modal-content {
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      max-width: 90%;
+      width: 400px;
+      text-align: center;
+    }
+    #ubicacionModal iframe {
+      border: 0;
+      border-radius: 8px;
+      width: 100%;
+      height: 250px;
+    }
+    #ubicacionModal button {
+      padding: 0.7rem 1rem;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #ubicacionModal .confirm { background: #25d366; color: white; }
+    #ubicacionModal .cancel { background: #ccc; margin-left: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="https://i.imgur.com/r6g9Rud.png" alt="Logo IDGoNow" />
+    </div>
+    <div class="titulo" id="titulo">Hola</div>
+    <img src="" alt="Foto" class="foto-circular" id="foto"/>
+    <div class="info-central" id="infoCentral"></div>
+    <div class="seccion-contacto">📇 Datos del contacto</div>
+    <div class="datos-contacto" id="datosContacto"></div>
+    <div class="btns" id="botones"></div>
+  </div>
 
-  const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
-  let ubicacionTmp = {};
+  <div id="ubicacionModal">
+    <div class="modal-content">
+      <h3>Confirmar ubicación</h3>
+      <p>¿Esta es tu ubicación actual?</p>
+      <iframe id="mapaUbicacion" allowfullscreen></iframe>
+      <div style="margin-top:1rem; display:flex; justify-content:space-between;">
+        <button class="confirm" onclick="confirmarUbicacion()">Enviar</button>
+        <button class="cancel" onclick="cerrarModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
-  fetch(endpoint, { headers: { "xc-token": API_TOKEN } })
-    .then(res => {
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-      return res.json();
-    })
-    .then(data => {
-      let record;
+  <script>
+    let ubicacionTmp = {};
+
+    (async () => {
+      const params   = new URLSearchParams(window.location.search);
+      const tagParam = params.get("tag");
+      let endpoint;
+
       if (tagParam) {
-        // API devuelve { list: [...] }
-        record = Array.isArray(data.list) && data.list[0];
-        if (!record) {
-          document.getElementById("titulo").innerText = `❌ No hay ficha para el tag “${tagParam}”.`;
-          return;
-        }
-        record = record.fields;
+        endpoint = `https://idgonow.up.railway.app/api/v2/tables/m340oj04ihz4wlu/records?where=${encodeURIComponent(`(tag,eq,${tagParam})`)}`;
       } else {
-        record = data.fields || data;
+        let recordId = params.get("id");
+        if (recordId && recordId.startsWith("ID")) {
+          recordId = parseInt(recordId.replace("ID", "").replace(/^0+/, ""));
+        }
+        endpoint = `https://idgonow.up.railway.app/api/v2/tables/m340oj04ihz4wlu/records/${recordId}`;
       }
 
-      // --- El resto es exactamente tu código existente para renderizar la ficha ---
-      document.getElementById("titulo").innerText = "Hola, soy " + (record["Nombre"] || "");
-      // … foto, infoCentral, datosContacto, botones, etc. …
-    })
-    .catch(err => {
-      document.getElementById("titulo").innerText = "Error al consultar la API: " + err.message;
-    });
+      const API_TOKEN = "HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy";
 
-  // Tus funciones de geolocalización quedan igual:
-  function enviarUbicacion(tel, nombre) { /* … */ }
-  function confirmarUbicacion() { /* … */ }
-  function cerrarModal() { /* … */ }
-</script>
+      try {
+        const res  = await fetch(endpoint, { headers: { "xc-token": API_TOKEN } });
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        const data = await res.json();
+
+        let record;
+        if (tagParam) {
+          const entry = Array.isArray(data.list) && data.list[0];
+          if (!entry) {
+            document.getElementById("titulo").innerText = `❌ No hay ficha para el tag “${tagParam}”.`;
+            return;
+          }
+          record = entry.fields;
+        } else {
+          record = data.fields || data;
+        }
+
+        const tituloEl    = document.getElementById("titulo");
+        const fotoEl      = document.getElementById("foto");
+        const infoCentral = document.getElementById("infoCentral");
+        const contactoEl  = document.getElementById("datosContacto");
+        const botonesEl   = document.getElementById("botones");
+
+        // Título
+        tituloEl.innerText = "Hola, soy " + (record["Nombre"] || "");
+
+        // Foto
+        const fotoCampo = Object.entries(record).find(([k]) => k.toLowerCase().includes("foto"));
+        if (fotoCampo) {
+          const val = fotoCampo[1];
+          let url = "";
+          if (Array.isArray(val) && val[0]?.path) url = `https://idgonow.up.railway.app/${val[0].path}`;
+          else if (typeof val === "string" && val.startsWith("http")) url = val;
+          if (url) fotoEl.src = url;
+        }
+
+        // Función para añadir líneas de texto
+        function addLine(label, key, container) {
+          if (record[key]) {
+            container.innerHTML += `<p><strong>${label}:</strong> ${record[key]}</p>`;
+          }
+        }
+
+        addLine("Edad", "Edad", infoCentral);
+        addLine("Tipo", "Tipo de mascota", infoCentral);
+        addLine("Raza", "Raza y características", infoCentral);
+        addLine("Información médica", "Información médica o datos útiles", infoCentral);
+        addLine("Nombre contacto", "Nombre del contacto", contactoEl);
+        addLine("Teléfono", "Teléfono de contacto", contactoEl);
+        addLine("Correo", "Correo de contacto", contactoEl);
+
+        // Botones de acción
+        const tel    = (record["Teléfono de contacto"] || "").replace(/\D/g, "");
+        const nombre = record["Nombre"] || "";
+        if (tel) {
+          const msg = encodeURIComponent(`Hola, he encontrado a ${nombre}.`);
+          botonesEl.innerHTML = `
+            <a href="tel:+51${tel}" class="call">📞 Llamar</a>
+            <a href="https://wa.me/51${tel}?text=${msg}" target="_blank" class="whatsapp">💬 WhatsApp</a>
+            <a href="javascript:void(0)" onclick="enviarUbicacion('${tel}','${nombre}')" class="ubicacion">📍 Enviar ubicación</a>
+          `;
+        }
+      } catch (err) {
+        document.getElementById("titulo").innerText = "Error al consultar la API: " + err.message;
+      }
+    })();
+
+    function enviarUbicacion(tel, nombre) {
+      if (!navigator.geolocation) {
+        alert("Este navegador no soporta geolocalización.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(pos => {
+        ubicacionTmp = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          tel, nombre
+        };
+        document.getElementById("mapaUbicacion").src =
+          `https://maps.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}&hl=es&z=16&output=embed`;
+        document.getElementById("ubicacionModal").style.display = "flex";
+      }, () => {
+        alert("No se pudo obtener la ubicación.");
+      }, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      });
+    }
+
+    function confirmarUbicacion() {
+      const { lat, lng, tel, nombre } = ubicacionTmp;
+      const link = `https://www.google.com/maps?q=${lat},${lng}`;
+      const msg  = `Hola, he encontrado a ${nombre}. Mi ubicación actual es: ${link}`;
+      window.open(`https://wa.me/51${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+      cerrarModal();
+    }
+
+    function cerrarModal() {
+      document.getElementById("ubicacionModal").style.display = "none";
+    }
+  </script>
+</body>
+</html>
+
 
