@@ -31,7 +31,7 @@
   <script>
     (async () => {
       const params = new URLSearchParams(window.location.search);
-      const tag = params.get('tag');
+      const tag    = params.get('tag');
       const salida = document.getElementById('resultado');
 
       if (!tag) {
@@ -42,8 +42,8 @@
       // Configura estos valores según tu instancia
       const API_TOKEN = 'HzyX5A2ycuqlDhV2uyiQ-12UhN_DM0uO4Bfxe7hy';
       const TABLE_ID  = 'm340oj04ihz4wlu';
-      // Construye la URL con filtro: campo tag igual al valor
-      const API_URL = `https://idgonow.up.railway.app/api/v2/tables/${TABLE_ID}/records?filter=${encodeURIComponent(`tag,eq,${tag}`)}`;
+      // Usa `where` con paréntesis, sin espacios
+      const API_URL = `https://idgonow.up.railway.app/api/v2/tables/${TABLE_ID}/records?where=${encodeURIComponent(`(tag,eq,${tag})`)}`;
 
       try {
         const res  = await fetch(API_URL, {
@@ -51,15 +51,12 @@
         });
         if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
         const data = await res.json();
-        // En v2 NocoDB devuelve { list: [...], count: N, ... }
-        const lista = Array.isArray(data.list) 
-                      ? data.list 
-                      : (Array.isArray(data) ? data : []);
+        const lista = Array.isArray(data.list) ? data.list : [];
 
         if (lista.length > 0) {
-          salida.innerText = `✅ El tag “${tag}” **existe** en la tabla.`;
+          salida.innerText = `✅ El tag “${tag}” existe en la tabla.`;
         } else {
-          salida.innerText = `❌ El tag “${tag}” **no existe** en la tabla.`;
+          salida.innerText = `❌ El tag “${tag}” no existe en la tabla.`;
         }
       } catch (err) {
         salida.innerText = 'Error al consultar la API: ' + err.message;
@@ -68,4 +65,5 @@
   </script>
 </body>
 </html>
+
 
