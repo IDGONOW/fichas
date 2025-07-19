@@ -2,68 +2,108 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MascotaID – Encuentra a tu mascota más rápido</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MascotaID</title>
   <style>
     body {
       margin: 0;
-      font-family: sans-serif;
-      background: #f0f4f8;
-      color: #333;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      color: #222;
     }
+
     header {
-      background: #000000;
-      color: white;
-      padding: 1.5rem;
+      background-color: #000;
+      color: #fff;
+      padding: 40px 20px 20px;
       text-align: center;
     }
-    .hero {
-      padding: 2rem;
-      text-align: center;
+
+    header h1 {
+      font-size: 2.5rem;
+      margin: 0;
     }
-    .hero img {
+
+    header p {
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+
+    .mockup-container {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .mockup-container img {
       max-width: 100%;
+      height: auto;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    .hero h1 {
-      font-size: 2rem;
-      margin-top: 2rem;
-      margin-bottom: 1rem;
+
+    .content {
+      text-align: center;
+      padding: 30px 20px;
     }
-    .hero p {
-      font-size: 1.2rem;
-      margin-bottom: 1.5rem;
+
+    .content h2 {
+      font-size: 1.7rem;
+      margin-bottom: 10px;
     }
-    .cta-button {
-      background: #009944;
-      color: white;
-      padding: 1rem 2rem;
+
+    .content p {
       font-size: 1.1rem;
+      color: #444;
+      margin-bottom: 20px;
+    }
+
+    .cta-button {
+      background-color: #14a44d;
+      color: white;
+      font-size: 1rem;
       border: none;
       border-radius: 8px;
+      padding: 14px 24px;
       cursor: pointer;
       text-decoration: none;
+      display: inline-block;
+      margin-bottom: 40px;
+      transition: background-color 0.3s ease;
     }
+
+    .cta-button:hover {
+      background-color: #0f8a3c;
+    }
+
     .features {
-      background: white;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
       max-width: 800px;
-      margin: auto;
+      margin: 0 auto 60px;
+      padding: 0 20px;
     }
-    .features div {
-      background: #e9f2fa;
-      padding: 1rem;
-      border-radius: 8px;
+
+    .feature-box {
+      background-color: #eaf3fa;
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
     }
-    footer {
-      text-align: center;
-      padding: 2rem;
-      font-size: 0.9rem;
-      color: #666;
+
+    .feature-box span {
+      color: green;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      .content h2 {
+        font-size: 1.3rem;
+      }
+
+      header h1 {
+        font-size: 2rem;
+      }
     }
   </style>
 </head>
@@ -73,43 +113,33 @@
     <p>La medalla inteligente con NFC + QR que ayuda a encontrar a tu mascota si se pierde</p>
   </header>
 
-  <section class="hero">
-    <img src="ChatGPT Image 19 jul 2025, 05_55_21 a.m..png" alt="MascotaID Mockup">
-    <h1>Tu mascota puede perderse, pero no tu oportunidad de recuperarla</h1>
+  <div class="mockup-container">
+    <img src="https://raw.githubusercontent.com/fmorenovirtual/assets/main/mascotaid_mockup.png" alt="MascotaID Mockup" />
+  </div>
+
+  <div class="content">
+    <h2>Tu mascota puede perderse, pero no tu oportunidad de recuperarla</h2>
     <p>Medalla inteligente con tecnología NFC + QR. Cualquier persona podrá escanearla y contactarte de inmediato.</p>
-    <a href="formulario_interes_mascotas.html" class="cta-button">Quiero la medalla inteligente</a>
-  </section>
+    <a class="cta-button" href="https://wa.me/51999999999?text=Quiero%20comprar%20una%20medalla%20MascotaID">Quiero la medalla inteligente</a>
+  </div>
 
-  <section class="features">
-    <div>
-      <strong>✅ Tecnología QR + NFC</strong><br>
-      Medalla doble cara, escaneable con cualquier celular. Sin apps. Sin complicaciones.
+  <div class="features">
+    <div class="feature-box">
+      ✅ <span>Tecnología QR + NFC:</span> Medalla doble cara, escaneable con cualquier celular. Sin apps. Sin complicaciones.
     </div>
-    <div>
-      <strong>✅ Contacto instantáneo</strong><br>
-      La persona que la encuentre puede llamarte o escribirte por WhatsApp al instante.
+    <div class="feature-box">
+      ✅ <span>Contacto instantáneo:</span> La persona que la encuentre puede llamarte o escribirte por WhatsApp al instante.
     </div>
-    <div>
-      <strong>✅ Ficha digital única</strong><br>
-      Contiene nombre, contacto, dirección y datos importantes de tu mascota. Editable y siempre disponible.
+    <div class="feature-box">
+      ✅ <span>Ficha digital única:</span> Contiene nombre, contacto, dirección y datos importantes de tu mascota. Editable y siempre disponible.
     </div>
-    <div>
-      <strong>✅ Resistente y liviana</strong><br>
-      Placa circular de 3 cm, impermeable y diseñada para durar. Ideal para perros y gatos.
+    <div class="feature-box">
+      ✅ <span>Resistente y liviana:</span> Placa circular de 3 cm, impermeable y diseñada para durar. Ideal para perros y gatos.
     </div>
-    <div>
-      <strong>✅ Activación fácil</strong><br>
-      En solo 2 minutos puedes registrar a tu mascota y tener su ficha activa en línea.
+    <div class="feature-box">
+      ✅ <span>Activación fácil:</span> En solo 2 minutos puedes registrar a tu mascota y tener su ficha activa en línea.
     </div>
-    <div>
-      <strong>✅ Hecho en Perú</strong><br>
-      Soporte local, entregas en 48h y atención directa vía WhatsApp.
-    </div>
-  </section>
-
-  <footer>
-    © 2025 MascotaID. Todos los derechos reservados. Tecnología IDGoNow 🇵🇪
-  </footer>
+  </div>
 </body>
 </html>
 
