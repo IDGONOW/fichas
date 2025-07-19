@@ -1,160 +1,109 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>IDGoNow Mascotas</title>
   <style>
     body {
-      margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f6faff;
-      color: #222;
-    }
-
-    header {
-      background-color: #003366;
-      color: #fff;
-      padding: 40px 20px 20px;
-      text-align: center;
-    }
-
-    header img {
-      max-width: 160px;
-      margin-bottom: 10px;
-    }
-
-    header h1 {
-      font-size: 2rem;
       margin: 0;
-    }
-
-    header p {
-      margin-top: 10px;
-      font-size: 1rem;
-    }
-
-    .mockup-container {
+      padding: 0;
+      background: #f6faff;
       text-align: center;
-      padding: 30px 20px;
+      color: #333;
     }
 
-    .mockup-container img {
+    .container {
+      padding: 2rem;
+      max-width: 700px;
+      margin: auto;
+    }
+
+    .logo img {
+      max-width: 180px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-img {
       width: 100%;
       max-width: 480px;
       height: auto;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin: 1.5rem 0;
     }
 
-    .content {
-      text-align: center;
-      padding: 20px;
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #003366;
     }
 
-    .content h2 {
-      font-size: 1.6rem;
-      margin-bottom: 10px;
-    }
-
-    .content p {
+    p.description {
       font-size: 1.1rem;
-      color: #444;
-      margin-bottom: 20px;
+      color: #555;
+      margin-bottom: 2rem;
     }
 
-    .cta-button {
+    .btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 1rem 2rem;
       background-color: #007bff;
       color: white;
       font-size: 1rem;
       border: none;
       border-radius: 8px;
-      padding: 14px 24px;
       cursor: pointer;
       text-decoration: none;
-      display: inline-block;
-      margin-bottom: 40px;
-      transition: background-color 0.3s ease;
+      transition: background 0.3s ease;
     }
 
-    .cta-button:hover {
-      background-color: #005bb5;
+    .btn:hover {
+      background-color: #0056b3;
     }
 
     .features {
-      max-width: 900px;
-      margin: 0 auto 60px;
-      padding: 0 20px;
+      text-align: left;
+      margin-top: 2.5rem;
     }
 
     .feature-box {
-      background-color: #e7f0fb;
-      padding: 15px 20px;
+      background: #e7f0fb;
       border-radius: 10px;
-      margin-bottom: 15px;
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 15px;
-      align-items: center;
-    }
-
-    .feature-box img {
-      width: 24px;
-      height: 24px;
+      padding: 1rem;
+      margin-bottom: 1rem;
     }
 
     .feature-box strong {
       color: #003366;
     }
-
-    @media (max-width: 600px) {
-      .content h2 {
-        font-size: 1.4rem;
-      }
-
-      header h1 {
-        font-size: 1.8rem;
-      }
-    }
   </style>
 </head>
 <body>
-  <header>
-    <img src="https://raw.githubusercontent.com/fmorenovirtual/assets/main/idgonow_logo_white.png" alt="IDGoNow Logo" />
+  <div class="container">
+    <div class="logo">
+      <img src="https://i.imgur.com/r6g9Rud.png" alt="IDGoNow Logo">
+    </div>
+
     <h1>IDGoNow Mascotas</h1>
-    <p>La medalla inteligente con NFC + QR que ayuda a encontrar a tu mascota si se pierde</p>
-  </header>
+    <p class="description">
+      La medalla inteligente con tecnología NFC + QR que ayuda a encontrar a tu mascota si se pierde.<br>
+      Escaneable con cualquier celular. Sin apps. Sin complicaciones.
+    </p>
 
-  <div class="mockup-container">
-    <img src="https://raw.githubusercontent.com/fmorenovirtual/assets/main/mascotaid_mockup2.png" alt="IDGoNow Mascotas Mockup" />
-  </div>
+    <img class="hero-img" src="https://raw.githubusercontent.com/fmorenovirtual/assets/main/mascotaid_mockup2.png" alt="Mockup IDGoNow Mascotas"/>
 
-  <div class="content">
-    <h2>Tu mascota puede perderse, pero no tu oportunidad de recuperarla</h2>
-    <p>Medalla inteligente con tecnología NFC + QR. Cualquier persona podrá escanearla y contactarte de inmediato.</p>
-    <a class="cta-button" href="https://wa.me/51999999999?text=Quiero%20comprar%20una%20medalla%20IDGoNow">Quiero la medalla inteligente</a>
-  </div>
+    <a class="btn" href="https://wa.me/51999999999?text=Quiero%20comprar%20una%20medalla%20IDGoNow">Quiero la medalla inteligente</a>
 
-  <div class="features">
-    <div class="feature-box">
-      <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="check" />
-      <div><strong>Tecnología QR + NFC:</strong> Medalla doble cara, escaneable con cualquier celular. Sin apps. Sin complicaciones.</div>
-    </div>
-    <div class="feature-box">
-      <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="check" />
-      <div><strong>Contacto instantáneo:</strong> La persona que la encuentre puede llamarte o escribirte por WhatsApp al instante.</div>
-    </div>
-    <div class="feature-box">
-      <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="check" />
-      <div><strong>Ficha digital única:</strong> Contiene nombre, contacto, dirección y datos importantes de tu mascota. Editable y siempre disponible.</div>
-    </div>
-    <div class="feature-box">
-      <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="check" />
-      <div><strong>Resistente y liviana:</strong> Placa circular de 3 cm, impermeable y diseñada para durar. Ideal para perros y gatos.</div>
-    </div>
-    <div class="feature-box">
-      <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="check" />
-      <div><strong>Activación fácil:</strong> En solo 2 minutos puedes registrar a tu mascota y tener su ficha activa en línea.</div>
+    <div class="features">
+      <div class="feature-box"><strong>✅ Tecnología QR + NFC:</strong> Medalla doble cara, escaneable con cualquier celular.</div>
+      <div class="feature-box"><strong>✅ Contacto instantáneo:</strong> Quien la encuentre puede llamarte o escribirte al instante.</div>
+      <div class="feature-box"><strong>✅ Ficha digital única:</strong> Incluye nombre, contacto, dirección y datos de la mascota.</div>
+      <div class="feature-box"><strong>✅ Resistente y liviana:</strong> Placa circular de 3 cm, impermeable. Ideal para perros y gatos.</div>
+      <div class="feature-box"><strong>✅ Activación fácil:</strong> En solo 2 minutos registras y activas la ficha online.</div>
+      <div class="feature-box"><strong>✅ Hecho en Perú:</strong> Soporte local, entregas en 48h y atención vía WhatsApp.</div>
     </div>
   </div>
 </body>
